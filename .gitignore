@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.DS_Store
+
+# Harness scratch workspace (agent sessions, plans, reports)
+.superpowers/
