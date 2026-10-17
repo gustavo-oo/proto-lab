@@ -9,8 +9,9 @@
   Shows the point's options side by side as live iframes, with a desktop/mobile
   width toggle. The toggle script runs in THIS document only (document.querySelectorAll
   over local iframes) — no cross-frame scripting, so it works from file://.
-  The generator fills the title token and swaps the frames marker for the real
-  per-option frames; the sample deck below is the neutral, pre-generation preview.
+  The generator fills the title token and replaces the whole deck block below
+  (anchored by data-canvas-frames) with the real per-option frames; the sample
+  deck is the neutral, pre-generation preview.
 -->
 <style>
   :root {
@@ -122,9 +123,14 @@
     </div>
   </header>
 
-  <!-- {{CANVAS_FRAMES}} -->
-  <!-- sample deck: the generator swaps these three frames for the point's options -->
-  <div class="deck">
+  <!--
+    Task 16 contract: replace the WHOLE deck block below — the element carrying
+    data-canvas-frames, from its opening <div> to its matching close — with the
+    frames generated for this point's options. The data-canvas-frames attribute
+    is the machine-readable anchor for the block; the three sample frames are a
+    static, file://-openable preview and are removed together with the block.
+  -->
+  <div class="deck" data-canvas-frames="{{CANVAS_FRAMES}}">
     <figure class="frame" data-variant="a">
       <figcaption class="frame__caption">
         <span class="frame__letter">A</span>

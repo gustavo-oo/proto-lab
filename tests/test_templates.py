@@ -13,7 +13,9 @@ the constraints that make that true:
 - no ``http`` URL outside the two allow-listed font hosts;
 - no cross-frame scripting (``contentWindow`` / ``postMessage`` /
   ``contentDocument``);
-- ``canvas.html`` shows three frames labelled ``A`` / ``B`` / ``C``;
+- ``canvas.html`` shows three frames labelled ``A`` / ``B`` / ``C`` inside a
+  ``<div class="deck">`` block anchored by ``data-canvas-frames`` (the whole
+  block is what Task 16's generator replaces — ruling R16);
 - ``variant-shell.html`` carries a ``<nav>`` of relative links plus the
   ``<!-- screens -->`` marker.
 
@@ -64,7 +66,8 @@ INLINE_SCRIPT_BLOCK_CAP = 1
 # any of these.
 FORBIDDEN_CROSS_FRAME_TOKENS = ("contentWindow", "postMessage", "contentDocument")
 
-PLACEHOLDER_RE = re.compile(r"\{\{([A-Z_]+)\}\}")
+# Any ``{{TOKEN}}`` in any case — so a stray lowercase token is caught too.
+PLACEHOLDER_RE = re.compile(r"\{\{([^{}]+)\}\}")
 EXTERNAL_SCRIPT_RE = re.compile(r"<script\b[^>]*\bsrc\s*=", re.IGNORECASE)
 INLINE_SCRIPT_RE = re.compile(
     r"<script\b(?![^>]*\bsrc\s*=)[^>]*>(.*?)</script\s*>",
@@ -78,6 +81,17 @@ FRAME_LETTER_RE = re.compile(r'class="frame__letter">([A-Z])<')
 FRAME_VARIANT_RE = re.compile(r'data-variant="([a-z])"')
 NAV_RE = re.compile(r"<nav\b[^>]*>(.*?)</nav>", re.IGNORECASE | re.DOTALL)
 HREF_RE = re.compile(r'href\s*=\s*"([^"]+)"', re.IGNORECASE)
+COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
+
+# Ruling R16: the generator replaces the whole deck block, anchored by this
+# attribute on the ``<div class="deck">`` container. The anchor must sit in the
+# opening tag — not in a comment — and the static sample frames stay inside it.
+CANVAS_FRAMES_ANCHOR = "data-canvas-frames"
+DECK_BLOCK_RE = re.compile(
+    r'(<div\b[^>]*\bclass\s*=\s*"[^"]*\bdeck\b[^"]*"[^>]*>)(.*?)</div>',
+    re.IGNORECASE | re.DOTALL,
+)
+ATTR_VALUE_RE = re.compile(r'\b([a-zA-Z-]+)\s*=\s*"([^"]*)"')
 
 
 class TemplateTest(unittest.TestCase):
@@ -199,8 +213,36 @@ class CanvasFramesTest(TemplateTest):
             sorted(FRAME_VARIANT_RE.findall(html)), ["a", "b", "c"]
         )
 
-    def test_canvas_exposes_the_frames_placeholder(self):
-        self.assertIn("{{CANVAS_FRAMES}}", self.read(CANVAS))
+    def test_canvas_frames_anchor_is_structurally_located(self):
+        html = COMMENT_RE.sub("", self.read(CANVAS))
+        deck = DECK_BLOCK_RE.search(html)
+        self.assertIsNotNone(
+            deck, 'canvas.html must carry a <div class="deck"> frames block'
+        )
+        tag, body = deck.group(1), deck.group(2)
+        attrs = dict(ATTR_VALUE_RE.findall(tag))
+        self.assertEqual(
+            attrs.get(CANVAS_FRAMES_ANCHOR),
+            "{{CANVAS_FRAMES}}",
+            "the deck container must carry the {{CANVAS_FRAMES}} anchor attribute",
+        )
+        # R16: the static sample deck stays inside the anchored block.
+        self.assertEqual(
+            len(IFRAME_RE.findall(body)),
+            3,
+            "the anchored deck block must hold the three sample frames",
+        )
+        self.assertEqual(sorted(FRAME_LETTER_RE.findall(body)), ["A", "B", "C"])
+
+    def test_required_placeholders_are_not_hidden_in_comments(self):
+        for name, required in REQUIRED_PLACEHOLDERS.items():
+            commentless = COMMENT_RE.sub("", self.read(ASSETS / name))
+            for placeholder in required:
+                self.assertIn(
+                    placeholder,
+                    commentless,
+                    "%s hides %s inside an HTML comment" % (name, placeholder),
+                )
 
 
 class VariantShellTest(TemplateTest):
