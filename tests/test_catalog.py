@@ -31,12 +31,13 @@ REQUIRED_KEYS = (
     "fits",
     "fails",
     "forbidden_moves",
+    "accent_options",
     "type",
     "palette_logic",
     "density",
     "motion",
     "voice",
-    "imagery_options",
+    "imagery_subjects",
     "inversion_allowed",
     "system_font_first",
 )
@@ -59,6 +60,9 @@ FAMILIES = {
 
 # A fallback stack is "same class" when it names one of these generic classes.
 FALLBACK_CLASSES = ("serif", "sans-serif", "monospace", "system-ui")
+
+# Accent entries are uppercase #RRGGBB hex strings (or the list is empty).
+ACCENT_RE = re.compile(r"^#[0-9A-F]{6}$")
 
 EXPECTED_IDS = ["D%02d" % number for number in range(1, 23)]
 
@@ -128,7 +132,7 @@ class DirectionsCatalogDocTest(unittest.TestCase):
                 for key in ("name", "family", "palette_logic", "density", "motion", "voice"):
                     self.assertIsInstance(entry[key], str, "%s.%s must be a string" % (entry["id"], key))
                     self.assertTrue(entry[key].strip(), "%s.%s must not be empty" % (entry["id"], key))
-                for key in ("fits", "fails", "forbidden_moves", "imagery_options"):
+                for key in ("fits", "fails", "forbidden_moves", "accent_options", "imagery_subjects"):
                     self.assertIsInstance(entry[key], list, "%s.%s must be a list" % (entry["id"], key))
                     self.assertTrue(
                         all(isinstance(item, str) for item in entry[key]),
@@ -155,6 +159,27 @@ class DirectionsCatalogDocTest(unittest.TestCase):
                     any(token in stack for token in FALLBACK_CLASSES),
                     "%s fallback_stack must name a generic class (%s): %r"
                     % (entry["id"], ", ".join(FALLBACK_CLASSES), stack),
+                )
+
+    def test_accent_options_are_uppercase_hex(self):
+        for entry in self.catalog:
+            with self.subTest(entry=entry.get("id")):
+                accents = entry["accent_options"]
+                self.assertIsInstance(accents, list, "%s accent_options must be a list" % entry["id"])
+                for accent in accents:
+                    self.assertRegex(
+                        accent,
+                        ACCENT_RE,
+                        "%s accent %r must be uppercase #RRGGBB" % (entry["id"], accent),
+                    )
+
+    def test_imagery_subjects_is_a_list(self):
+        for entry in self.catalog:
+            with self.subTest(entry=entry.get("id")):
+                self.assertIsInstance(
+                    entry["imagery_subjects"],
+                    list,
+                    "%s imagery_subjects must be a list (possibly empty)" % entry["id"],
                 )
 
     def test_d04_and_d05_are_pruned_for_dense_tables(self):

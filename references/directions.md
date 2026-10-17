@@ -12,7 +12,7 @@ motion, imagery, fits, fails, failure modes and forbidden moves. The machine
 block between `<!-- CATALOG_JSON_START -->` and `<!-- CATALOG_JSON_END -->` is the
 same catalog for scripts: it carries `id`, `name`, `family`, `fits`, `fails`,
 `forbidden_moves`, `type{display,body,mono,fallback_stack}`, `palette_logic`,
-`density`, `motion`, `voice`, `imagery_options`, `inversion_allowed` and
+`density`, `motion`, `voice`, `accent_options` and `imagery_subjects`, `inversion_allowed` and
 `system_font_first`. Both halves always describe the same 22 ids and names.
 
 **Type rules.** At most 2 families plus at most 1 mono per page. A fallback stack
@@ -52,6 +52,9 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "display type larger than the grid allows",
       "two sans families pretending to be one"
     ],
+    "accent_options": [
+      "#E60000"
+    ],
     "type": {
       "display": "Instrument Sans / Archivo, neo-grotesque, 2-3 sizes per page",
       "body": "the same neo-grotesque at reading size, flush left ragged right",
@@ -62,7 +65,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "medium - 8pt modular grid, asymmetric columns, hierarchy by size and position, deliberate whitespace",
     "motion": "a cut: instant state change, at most one wipe; no easing flourishes",
     "voice": "neutral and declarative, third person; labels and captions, no adjectives of enthusiasm",
-    "imagery_options": [
+    "imagery_subjects": [
       "documentary black and white photograph pinned to the grid",
       "typographic specimen",
       "wayfinding glyph set"
@@ -93,6 +96,9 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "more than one display size jump per screen",
       "centred symmetry across the whole page"
     ],
+    "accent_options": [
+      "#6B1F2A"
+    ],
     "type": {
       "display": "Bodoni Moda / Playfair Display, Didone, 56-96px, often one italic word",
       "body": "Newsreader / Source Serif 4 text serif",
@@ -103,7 +109,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "low to medium - asymmetric 5fr/7fr spreads, headline overlapping tall portrait crops, off-axis captions, deep indents",
     "motion": "slow mask reveals 400-800ms, parallax on imagery only; nothing bounces",
     "voice": "editorial caption voice: short declarative lines, an occasional italic word, no marketing claims",
-    "imagery_options": [
+    "imagery_subjects": [
       "art-directed tall portrait crops",
       "black and white or muted photography",
       "fabric and detail macros"
@@ -133,6 +139,9 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "one giant headline per screen",
       "vertical whitespace as the main device"
     ],
+    "accent_options": [
+      "#C8102E"
+    ],
     "type": {
       "display": "Libre Franklin / Franklin Gothic newsy grotesque, wildly varying sizes",
       "body": "Source Serif 4 / Publico-class text serif, italics for bylines",
@@ -143,7 +152,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "high - 5-6 column broadsheet, column rules, dense decks and jump lines, above-the-fold hierarchy",
     "motion": "none; at most a ticker",
     "voice": "news headline voice: active verbs, datelines, bylines, no first person",
-    "imagery_options": [
+    "imagery_subjects": [
       "black and white halftone photograph",
       "hairline-axis chart",
       "pull-quote box"
@@ -174,6 +183,9 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "more than three metallic accent uses per page",
       "stock smiling people"
     ],
+    "accent_options": [
+      "#A08B62"
+    ],
     "type": {
       "display": "Cormorant 300 / Canela-class light high-contrast serif",
       "body": "one neutral companion, wide-tracked uppercase micro-labels, generous leading",
@@ -184,7 +196,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "very low - narrow single reading column, 80-140px section gaps, centred or calm-symmetric, whitespace is the material",
     "motion": "unhurried 400-800ms fades, zero bounce; the pace of a deep breath",
     "voice": "sparse, restrained, materially specific; one sentence where two would do",
-    "imagery_options": [
+    "imagery_subjects": [
       "material close-ups (cashmere, brass, leather)",
       "blown-highlight still life",
       "no people, or hands only"
@@ -215,6 +227,9 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "hard shadows",
       "high-contrast digital gloss"
     ],
+    "accent_options": [
+      "#B08968"
+    ],
     "type": {
       "display": "DM Serif Display / Spectral transitional serif",
       "body": "DM Sans at weight 400 only, tracked uppercase captions",
@@ -225,7 +240,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "low - generous air, asymmetric but calm, full-bleed photo bands alternating with text, ~170px vertical section padding",
     "motion": "slow barely-perceptible reveals; photography desaturated about 18% to integrate with the paper",
     "voice": "warm and unhurried, first-person plural, everyday nouns",
-    "imagery_options": [
+    "imagery_subjects": [
       "soft natural-light objects on surfaces",
       "desaturated lifestyle photography",
       "ceramics and textiles"
@@ -255,6 +270,11 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "border plus shadow plus fill on every node at once",
       "rounded-2xl on everything"
     ],
+    "accent_options": [
+      "#B8FF3C",
+      "#FFD447",
+      "#FF3EA5"
+    ],
     "type": {
       "display": "Space Grotesk 700-900 / Archivo Black, heavy grotesque",
       "body": "a deliberately boring grotesque for scannability",
@@ -265,7 +285,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "medium to high - blocky compartmentalised grid, every element boxed, structure always drawn",
     "motion": "instant and mechanical; press-down translate on active; 0-8px radius and hard offset shadows",
     "voice": "loud and plain-spoken, uppercase labels, one exclamation allowed",
-    "imagery_options": [
+    "imagery_subjects": [
       "flat chunky vector illustration",
       "sticker and badge seals",
       "no photography"
@@ -295,6 +315,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "decorative imagery",
       "layout that implies structure instead of using rules and tables"
     ],
+    "accent_options": [],
     "type": {
       "display": "UA default serif (Times) used knowingly, or one grotesque",
       "body": "UA default serif, underlined blue links",
@@ -305,7 +326,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "text-dense - single column, default document flow, <hr> dividers, tables for real structure",
     "motion": "none; zero decoration by rule",
     "voice": "blunt, technical, lower-case, no marketing register at all",
-    "imagery_options": [
+    "imagery_subjects": [
       "none",
       "one unedited image",
       "content carries everything"
@@ -335,6 +356,10 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "more than one phosphor accent",
       "colour used decoratively"
     ],
+    "accent_options": [
+      "#00FF41",
+      "#FFB000"
+    ],
     "type": {
       "display": "IBM Plex Mono / JetBrains Mono, ONE mono family",
       "body": "the same mono, mostly one size",
@@ -345,7 +370,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "high text density - single-column prompt and log rhythm, panels as bordered ASCII cells, content framed as commands and responses",
     "motion": "typing reveals, cursor blink, instant data; all reduced-motion aware",
     "voice": "man-page register: imperative, terse, literal; commands and responses",
-    "imagery_options": [
+    "imagery_subjects": [
       "ASCII art",
       "box-drawing dividers",
       "status glyphs"
@@ -376,6 +401,10 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "decorative colour",
       "fake CRT nostalgia as costume"
     ],
+    "accent_options": [
+      "#FFB000",
+      "#4DA3FF"
+    ],
     "type": {
       "display": "no display role; compact sans labels only",
       "body": "compact sans at 11-13px with micro uppercase labels",
@@ -386,7 +415,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "very high - rigid pane lattice with 1px seams, fixed columns, summary next to detail, keyboard-first",
     "motion": "updates are instant; a subtle blink on new data only",
     "voice": "operator log: abbreviations, numbers, units, no adjectives",
-    "imagery_options": [
+    "imagery_subjects": [
       "sparklines",
       "dense data tables",
       "heat and status grids"
@@ -416,6 +445,9 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "gradients that read as UI chrome",
       "annotation density past legibility"
     ],
+    "accent_options": [
+      "#00E5FF"
+    ],
     "type": {
       "display": "condensed sans labels only",
       "body": "technical mono with dimension values as ambient text",
@@ -426,7 +458,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "high info density - visible graph-paper substrate at 5-8% opacity, corner brackets instead of borders, crosshairs, dimension callouts, title-block footer",
     "motion": "draw-on line tracing and a scanline sweep; nothing bounces or sparkles",
     "voice": "spec-sheet voice: part numbers, tolerances, units, imperative notes",
-    "imagery_options": [
+    "imagery_subjects": [
       "exploded technical views",
       "wireframes",
       "crop marks"
@@ -456,6 +488,9 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "interior page asymmetry",
       "gold on gold contrast failures"
     ],
+    "accent_options": [
+      "#C9A84C"
+    ],
     "type": {
       "display": "Cinzel / Poiret One geometric all-caps, tracked at least 0.15em",
       "body": "small-caps serif or a quiet grotesque at reading weight",
@@ -466,7 +501,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "medium and ceremonial - symmetric centred compositions, double-border frames inset about 5px, fan/sunburst/chevron/diamond motifs, deco-rule dividers",
     "motion": "cinematic 400ms+ fades, optional gold shimmer; no bounce",
     "voice": "ceremonial and formal: 'presenting', 'since', 'the collection'",
-    "imagery_options": [
+    "imagery_subjects": [
       "monogram and graphic ornament",
       "silhouettes",
       "rare, heavily toned photography"
@@ -495,6 +530,10 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "hard 1px borders",
       "grey stock photography"
     ],
+    "accent_options": [
+      "#D9541E",
+      "#1F8A8C"
+    ],
     "type": {
       "display": "Jost / Futura-like geometric display, wide-tracked caps",
       "body": "clean grotesque, occasional script accent",
@@ -505,7 +544,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "medium poster density - capsules, boomerangs, orbital compositions, off-centre heroes, dotted star fields",
     "motion": "pills with huge 24-999px radii, floating drift and slow orbits, optimistic easing",
     "voice": "optimistic pitch grounded in concrete nouns: 'the future of', 'journey'",
-    "imagery_options": [
+    "imagery_subjects": [
       "starbursts and atomic dots",
       "halftone space scenes",
       "rayguns and checkered patterns"
@@ -534,6 +573,11 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "thin geometric type",
       "over-saturated vintage effects applied uniformly"
     ],
+    "accent_options": [
+      "#C05621",
+      "#D9A521",
+      "#6E8B3D"
+    ],
     "type": {
       "display": "Fraunces / Cooper Black-class fat groovy serif, arc-set headlines",
       "body": "warm serif or warm sans",
@@ -544,7 +588,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "medium and cosy - stacked arcing headlines, radial compositions, badges and seals, striped borders",
     "motion": "warm bounces and slow spins; static grain texture",
     "voice": "friendly and conversational, exclamation tolerated, product as friend",
-    "imagery_options": [
+    "imagery_subjects": [
       "airbrush illustration",
       "mushrooms, rainbows and suns",
       "textured paper"
@@ -573,6 +617,11 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "more than three spot inks",
       "perfect registration everywhere"
     ],
+    "accent_options": [
+      "#F237A1",
+      "#2C40A7",
+      "#FFB81C"
+    ],
     "type": {
       "display": "Bowlby One-class ultra-heavy poster display, cropped or overlapped on purpose",
       "body": "mono for listings; titles printed in the second ink",
@@ -583,7 +632,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "medium to high - poster collage, rotated bands, sticker blocks, programme listings, registration crosshairs kept",
     "motion": "1-3px layer offsets as misregistration, pixel reveals, marquees, displacement hovers",
     "voice": "DIY and exclamatory; programme listings mixed with slogans",
-    "imagery_options": [
+    "imagery_subjects": [
       "duotone and screened photographs",
       "halftone dots",
       "cut-and-paste collage"
@@ -612,6 +661,11 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "stock photography",
       "flat single-hue palettes"
     ],
+    "accent_options": [
+      "#FF4D6D",
+      "#FFD23F",
+      "#4D9DE0"
+    ],
     "type": {
       "display": "quirky geometric sans, allowed to clash with a chunky serif",
       "body": "readable grotesque; squiggles and arrows where icons would be",
@@ -622,7 +676,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "medium and scattered - loud islands in whitespace, asymmetric playful placements, diagonal energy",
     "motion": "springy bouncy easings, hover wiggles, floating shapes",
     "voice": "playful and direct, verbs first, second person",
-    "imagery_options": [
+    "imagery_subjects": [
       "flat vector doodads",
       "plastic-laminate texture",
       "sticker sheets"
@@ -652,6 +706,11 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "soft corporate shadows",
       "flat matte surfaces everywhere"
     ],
+    "accent_options": [
+      "#FF1493",
+      "#0F5EFF",
+      "#A8FF00"
+    ],
     "type": {
       "display": "Michroma / wide techy sans, liquid or outlined, bubbly headings",
       "body": "clean small sans",
@@ -662,7 +721,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "low to medium, maximal surfaces - glossy pill buttons with highlight bands, frosted panels, 24px+ radii, star sparkles, faux window frames",
     "motion": "gloss highlight sweeps, shimmer on hover, sparkle particles",
     "voice": "hyper and abbreviated: 'now', 'new!', period slang allowed",
-    "imagery_options": [
+    "imagery_subjects": [
       "chrome blobs",
       "early-3D renders",
       "CDs, flip phones, butterflies"
@@ -691,6 +750,10 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "motion without a reduced-motion path",
       "era collisions that mean nothing"
     ],
+    "accent_options": [
+      "#FF71CE",
+      "#01CDFE"
+    ],
     "type": {
       "display": "80s display faces plus bitmap/pixel cuts; fullwidth ornament type",
       "body": "ordinary quiet type in the product area",
@@ -701,7 +764,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "low to medium - a cinematic hero (sun plus grid horizon) then a deliberately quiet product area in ordinary type",
     "motion": "slow pans, scanline flicker, glitch on hover; reduced-motion path mandatory",
     "voice": "ironic and wistful; katakana and fullwidth type are decoration, not readable content",
-    "imagery_options": [
+    "imagery_subjects": [
       "Greco-Roman busts",
       "palms and VHS artefacts",
       "Windows 95 chrome"
@@ -730,6 +793,9 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "shadows over a material",
       "emoji as icons"
     ],
+    "accent_options": [
+      "#007AFF"
+    ],
     "type": {
       "display": "SF Pro with optical sizing, never disabled",
       "body": "SF Pro at 11-17px desktop scale",
@@ -740,7 +806,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "dense but comfortable - sidebar 240-320px, toolbar, content split views, 8pt spacing, rows at least 28pt, keyboard navigable",
     "motion": "0.2-0.3s standard easings; 6-12px radii; materials replace borders and shadows",
     "voice": "utility copy: labels, verbs, affordances, sentence case, no exclamation",
-    "imagery_options": [
+    "imagery_subjects": [
       "SF Symbols",
       "album-art-like imagery",
       "no borders on content"
@@ -769,6 +835,9 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "oversized hero type",
       "stock people"
     ],
+    "accent_options": [
+      "#4C8DFF"
+    ],
     "type": {
       "display": "Instrument Sans / Schibsted Grotesk with tight display tracking",
       "body": "the same grotesque; kbd chips for shortcuts",
@@ -779,7 +848,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "high - product-first: dense lists, command menu, keyboard hints, small or absent hero, 1px low-alpha borders define geometry",
     "motion": "120-200ms transitions with a subtle spring; staggered list reveals only",
     "voice": "precise and terse; feature verbs, no adjectives, shortcut-first",
-    "imagery_options": [
+    "imagery_subjects": [
       "product screenshots",
       "diagram ghosts",
       "no stock people"
@@ -809,6 +878,9 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "decorative gradients",
       "brand ornaments"
     ],
+    "accent_options": [
+      "#0B57D0"
+    ],
     "type": {
       "display": "Latin Modern Roman / Computer Modern, math as legitimate ornament",
       "body": "Latin Modern or Charter / STIX, italic theorem voice, footnote-grade labels",
@@ -819,7 +891,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "high text density, medium air - single-column measure for narrative, two columns for lists and tables, numbered sections, footnotes as marginalia, booktabs-style tables",
     "motion": "none - rules are section breaks; no radius, no shadows, no animation",
     "voice": "theorem-and-proof register: 'we show', 'Figure 1:', hedged claims",
-    "imagery_options": [
+    "imagery_subjects": [
       "captioned figures",
       "TikZ-aesthetic diagrams",
       "plots with hairline axes"
@@ -849,6 +921,11 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "modern soft shadows",
       "rounded cards"
     ],
+    "accent_options": [
+      "#7A7F52",
+      "#C08A2E",
+      "#8B2E3F"
+    ],
     "type": {
       "display": "EB Garamond / Source Serif old-style, italics for taxonomy",
       "body": "EB Garamond, small caps for labels, hand-annotated feel allowed",
@@ -859,7 +936,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "medium and curated - framed specimen plates with numbers and labels, margin notes, index lists, caption bands",
     "motion": "0 radius with thin double borders or corner ticks; crossfades only; nothing modern-feeling moves",
     "voice": "naturalist label voice: latin binomials in italics, precise nouns, observation",
-    "imagery_options": [
+    "imagery_subjects": [
       "scientific illustration and engravings",
       "maps",
       "specimen photos with scale bars"
@@ -889,6 +966,10 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
       "shadows",
       "small timid type"
     ],
+    "accent_options": [
+      "#002FA7",
+      "#E4002B"
+    ],
     "type": {
       "display": "Anton / Archivo Black condensed grotesque at 10-20vw, cropped and overlapping",
       "body": "tiny neutral sans",
@@ -899,7 +980,7 @@ declared `--domain`. Tags are therefore short and literal (e.g. `dense tables`).
     "density": "polarised - heroes maximal and full-bleed, lists minimal, poster stacking, marquees",
     "motion": "marquee scrolls, mask reveals, fast cuts",
     "voice": "statement and slogan: one line, imperative, no explanation",
-    "imagery_options": [
+    "imagery_subjects": [
       "art-directed blown-out or duotone photography",
       "grain",
       "edge-to-edge crops"
