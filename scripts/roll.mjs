@@ -269,14 +269,17 @@ options:
   --catalog CATALOG     path to directions.md (defaults to the repo copy)
 `;
 
-// Long option -> shape. `--wild` takes no value; `--help` exits immediately.
+// Option -> shape. `--wild` takes no value; `-h`/`--help` exit immediately.
+// `-h` is registered so the short flag mirrors argparse instead of being
+// reported as unrecognized.
 const OPTIONS = {
+  "-h": "help",
+  "--help": "help",
   "--seed": "value",
   "--domain": "value",
   "--wild": "flag",
   "--out": "value",
   "--catalog": "value",
-  "--help": "help",
 };
 
 // argparse's _negative_number_matcher: a negative number is a value, not an
@@ -308,7 +311,10 @@ function parseArgs(argv) {
     const token = argv[index];
 
     if (token === "--") {
-      extras.push(...argv.slice(index + 1));
+      // argparse has no positionals here, so the sentinel itself is consumed as
+      // an unrecognized argument (and everything after it is not parsed as an
+      // option): `--seed abc --` exits 2 with "unrecognized arguments: --".
+      extras.push(...argv.slice(index));
       break;
     }
     if (!looksLikeOption(token)) {
@@ -327,6 +333,9 @@ function parseArgs(argv) {
 
     const shape = OPTIONS[canonical];
     if (shape === "help") {
+      if (inline !== null) {
+        usageError(`argument -h/--help: ignored explicit argument ${pythonRepr(inline)}`);
+      }
       process.stdout.write(HELP);
       process.exit(0);
     }

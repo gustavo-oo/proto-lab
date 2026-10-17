@@ -13,7 +13,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -44,13 +44,18 @@ function mjs(args) {
   return run("node", [MJS, ...args]);
 }
 
-/** Run a CLI, capturing a non-zero exit instead of throwing. */
-function attempt(command, args) {
-  try {
-    return { status: 0, stdout: run(command, args) };
-  } catch (error) {
-    return { status: error.status, stdout: error.stdout ?? "" };
-  }
+/** Run a CLI to completion, capturing its exit status and both streams. */
+function capture(command, args) {
+  const result = spawnSync(command, args, { cwd: ROOT, encoding: "utf8" });
+  return { status: result.status, stdout: result.stdout, stderr: result.stderr };
+}
+
+/** Exit status + stdout of both CLIs for the same arguments. */
+function bothStatusAndStdout(args) {
+  return {
+    fromPy: capture("python3", [PY, ...args]),
+    fromMjs: capture("node", [MJS, ...args]),
+  };
 }
 
 function caseArgs(seed, { domain = null, extra = [] } = {}) {
@@ -198,14 +203,13 @@ test("a catalog without a machine block fails the same way on both CLIs", () => 
     const bad = path.join(dir, "bad-catalog.md");
     writeFileSync(bad, "# no CATALOG_JSON markers here\n");
 
-    const args = ["--seed", "abc", "--catalog", bad];
-    const fromPy = attempt("python3", [PY, ...args]);
-    const fromMjs = attempt("node", [MJS, ...args]);
+    const { fromPy, fromMjs } = bothStatusAndStdout(["--seed", "abc", "--catalog", bad]);
 
     assert.notEqual(fromPy.status, 0, "python must reject a markerless catalog");
     assert.equal(fromMjs.status, fromPy.status, "exit codes must match");
     assert.equal(fromMjs.stdout, fromPy.stdout, "stdout must match on the error path");
     assert.equal(fromMjs.stdout, "", "the error path must not print to stdout");
+    assert.notEqual(fromMjs.stderr, "", "the error path must report on stderr");
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -226,9 +230,9 @@ test("a domain that excludes every direction fails the same way on both CLIs", (
       },
     ]);
 
-    const args = ["--seed", "abc", "--catalog", catalog, "--domain", "zzz"];
-    const fromPy = attempt("python3", [PY, ...args]);
-    const fromMjs = attempt("node", [MJS, ...args]);
+    const { fromPy, fromMjs } = bothStatusAndStdout([
+      "--seed", "abc", "--catalog", catalog, "--domain", "zzz",
+    ]);
 
     assert.notEqual(fromPy.status, 0, "python must reject an all-excluding domain");
     assert.equal(fromMjs.status, fromPy.status, "exit codes must match");
@@ -236,5 +240,57 @@ test("a domain that excludes every direction fails the same way on both CLIs", (
     assert.equal(fromMjs.stdout, "", "the error path must not print to stdout");
   } finally {
     rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("-h and --help print help to stdout and exit 0, like argparse", () => {
+  for (const flag of ["-h", "--help"]) {
+    const { fromPy, fromMjs } = bothStatusAndStdout([flag]);
+
+    assert.equal(fromPy.status, 0, `python ${flag} must exit 0`);
+    assert.equal(fromMjs.status, fromPy.status, `${flag} exit codes must match`);
+    // Behavioural parity, not byte parity: the usage line legitimately reads
+    // "roll.mjs". Help is a stdout artefact and stderr stays empty.
+    assert.match(fromPy.stdout, /^usage:/, `python ${flag} writes help to stdout`);
+    assert.match(fromMjs.stdout, /^usage: roll\.mjs/, `${flag} writes help to stdout`);
+    assert.match(fromMjs.stdout, /--seed/, `${flag} help lists the options`);
+    assert.equal(fromMjs.stderr, "", `${flag} must not write to stderr`);
+  }
+});
+
+test("-h acts immediately, even alongside other flags", () => {
+  const { fromPy, fromMjs } = bothStatusAndStdout(["--seed", "abc", "-h"]);
+
+  assert.equal(fromPy.status, 0);
+  assert.equal(fromMjs.status, fromPy.status, "exit codes must match");
+  assert.match(fromMjs.stdout, /^usage:/, "help must be printed");
+  assert.equal(fromMjs.stderr, "", "-h must short-circuit before the seed is generated");
+});
+
+test("-h=x is rejected with exit 2 and empty stdout, like argparse", () => {
+  const { fromPy, fromMjs } = bothStatusAndStdout(["-h=x"]);
+
+  assert.notEqual(fromPy.status, 0, "python rejects an explicit help argument");
+  assert.equal(fromMjs.status, fromPy.status, "exit codes must match");
+  assert.equal(fromMjs.stdout, "", "no help is printed on this error path");
+});
+
+test("the -- sentinel is unrecognized, not a terminator (argparse parity)", () => {
+  const cases = [
+    ["--"],
+    ["--seed", "abc", "--"],
+    ["--", "--seed", "abc"],
+    ["--seed", "abc", "extra", "--"],
+    ["--seed", "abc", "--", "--wild"],
+  ];
+
+  for (const args of cases) {
+    const { fromPy, fromMjs } = bothStatusAndStdout(args);
+    const label = JSON.stringify(args);
+
+    assert.notEqual(fromPy.status, 0, `python must reject ${label}`);
+    assert.equal(fromMjs.status, fromPy.status, `exit codes must match for ${label}`);
+    assert.equal(fromMjs.stdout, fromPy.stdout, `stdout must match for ${label}`);
+    assert.equal(fromMjs.stdout, "", `the error path must not print a card for ${label}`);
   }
 });
