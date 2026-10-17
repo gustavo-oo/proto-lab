@@ -17,23 +17,37 @@ The direction is drawn from the filtered catalog with a single SHA-256 hash.
 ```python
 import hashlib
 
-DIRECTION_SALT = ":direction:v1"
+# Every draw hashes `seed + label`, where the label carries its own leading
+# colon. The scheme is defined once, here, and reused by the knobs.
+DIRECTION_LABEL = ":direction:v1"
+
+def draw(seed, label):
+    """Reduce sha256(seed + label) to a 64-bit unsigned integer."""
+    digest = hashlib.sha256((seed + label).encode("utf-8")).digest()
+    return int.from_bytes(digest[:8], "big")
 
 def direction_index(seed, filtered_catalog_ordered_by_id):
-    digest = hashlib.sha256(f"{seed}:direction:v1".encode("utf-8")).digest()
-    n = int.from_bytes(digest[:8], "big")
+    n = draw(seed, DIRECTION_LABEL)  # sha256(seed + ":direction:v1")
     return n % len(filtered_catalog_ordered_by_id)
 ```
 
 Normative rules:
 
-1. Hash input is the seed joined to the versioned salt: `sha256(f"{seed}:direction:v1")`.
-   The `":direction:v1"` suffix versions the scheme; bumping it is a breaking change.
+1. Hash input is the seed concatenated with a label: `sha256(seed + label)`.
+   The direction label is `":direction:v1"`, so the input is exactly
+   `seed + ":direction:v1"` — one colon, never `seed + ":" + label`. The label
+   always carries its own leading colon, so the concatenation rule is the only
+   rule; bumping the label is a breaking change.
 2. The digest is reduced to an integer with `int.from_bytes(digest[:8], "big")`
-   (big-endian, first 8 bytes — 64 bits).
-3. `index = n % len(filtered_catalog_ordered_by_id)`. The catalog is **ordered
+   (big-endian, first 8 bytes). This is a full 64-bit unsigned integer, up to
+   2^64 − 1 — far above JavaScript's `Number.MAX_SAFE_INTEGER` (2^53 − 1).
+3. The `roll.mjs` mirror MUST therefore compute the 64-bit value with `BigInt`
+   (reduce over `BigInt.asUintN(64, ...)`) and convert only the **modulo result**
+   back to a `Number` for indexing. Taking the modulo on a JS `Number` silently
+   loses precision and diverges from `roll.py`.
+4. `index = n % len(filtered_catalog_ordered_by_id)`. The catalog is **ordered
    by direction id** (`D01` … `D22`) before the modulo, so the mapping is stable.
-4. The filtered catalog is never empty: an over-restrictive `--domain` is
+5. The filtered catalog is never empty: an over-restrictive `--domain` is
    reported to the user instead of silently un-filtering.
 
 **Source of truth.** The committed `direction.json` is authoritative. Re-running
@@ -102,18 +116,17 @@ must never re-roll the direction itself.
 | `rhythm`          | `"odd-first"` \| `"even-first"` | Uniform draw over two options. |
 | `imagery_subject` | string \| null                | Direction's imagery subjects. |
 
-Each knob is drawn with its **own salt**, reusing the same hashing scheme as
-the direction (`int.from_bytes(digest[:8], "big")`, then modulo the option
-count):
+Each knob is drawn with its **own label**, reusing the single `draw(seed, label)`
+scheme defined in **Algorithm**. The label always carries its own leading colon,
+so every hash input is `seed + label`:
 
 ```python
-def draw(seed, salt):
-    digest = hashlib.sha256(f"{seed}:{salt}".encode("utf-8")).digest()
-    return int.from_bytes(digest[:8], "big")
+KNOB_LABELS = (":accent", ":density", ":invert", ":rhythm", ":imagery")
 ```
 
-The salts are `":accent"`, `":density"`, `":invert"`, `":rhythm"` and
-`":imagery"`. Distinct salts keep the knobs statistically independent.
+The labels are `":accent"`, `":density"`, `":invert"`, `":rhythm"` and
+`":imagery"`. Distinct labels keep the knobs statistically independent, and
+there is no double-colon path: `draw(seed, ":accent")` hashes `seed + ":accent"`.
 
 - **accent** — `accent = direction.accent_options[draw(seed, ":accent") % len(direction.accent_options)]`.
   A direction whose allowed logic is monochrome has no accent options and
