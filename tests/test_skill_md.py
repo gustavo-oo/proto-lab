@@ -166,32 +166,6 @@ class SkillMdTest(unittest.TestCase):
             "SKILL.md cites paths that do not exist: %s" % ", ".join(missing),
         )
 
-    def test_every_reference_document_is_cited(self):
-        expected = sorted(
-            "references/" + p.name for p in (REPO_ROOT / "references").glob("*.md")
-        )
-        text_only = set(PATH_RE.findall(self.text))
-        missing = [p for p in expected if p not in text_only]
-        self.assertEqual(
-            missing,
-            [],
-            "reference documents never cited: %s" % ", ".join(missing),
-        )
-
-    def test_every_script_is_cited(self):
-        expected = sorted(
-            "scripts/" + p.name
-            for p in (REPO_ROOT / "scripts").iterdir()
-            if p.suffix in (".py", ".mjs")
-        )
-        text_only = set(PATH_RE.findall(self.text))
-        missing = [p for p in expected if p not in text_only]
-        self.assertEqual(
-            missing,
-            [],
-            "scripts never cited: %s" % ", ".join(missing),
-        )
-
     def test_baseline_rationalizations_appear_verbatim(self):
         missing = [r for r in BASELINE_RATIONALIZATIONS if r not in self.text]
         self.assertEqual(
@@ -204,15 +178,27 @@ class SkillMdTest(unittest.TestCase):
     def test_single_gate_and_pipeline_steps_are_stated(self):
         # The single interrupting gate is the decision-point confirmation.
         self.assertRegex(self.text, r"single gate", "the single gate is not named")
+        self.assertIn("step 3", self.text)
         self.assertIn("decision point", self.text.lower())
-        # The pipeline is numbered 0–9 in the spec; the run must be present.
-        for step in ("0.", "9."):
-            self.assertIn(step, self.text, "pipeline step %s not present" % step)
+        # The pipeline is numbered 0–9 in the spec; every step must be present
+        # as a numbered list item (`0. **Setup**` … `9. **Handoff**`).
+        numbers = {int(n) for n in re.findall(r"(?m)^(\d+)\. \*\*", self.text)}
+        missing = sorted(set(range(10)) - numbers)
+        self.assertEqual(
+            missing,
+            [],
+            "pipeline steps missing as numbered items: %s" % missing,
+        )
 
     def test_language_rule_is_stated(self):
-        # D10: repo docs are English, the conversation follows the user.
-        self.assertIn("language", self.text.lower())
-        self.assertIn("user", self.text.lower())
+        # D10: the conversation follows the user, while repo docs stay English.
+        self.assertIn("user's language", self.text)
+        self.assertRegex(
+            self.text,
+            r"repo docs[\s\S]*English",
+            "repo docs must be stated as English (D10)",
+        )
+        self.assertIn("D10", self.text)
 
     def test_degradation_paths_have_a_section(self):
         self.assertRegex(

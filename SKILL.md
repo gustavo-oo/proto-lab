@@ -149,8 +149,9 @@ Research protocol: `references/research-protocol.md`. Handoff formats:
 
 ## Rationalizations
 
-Each row is a **verbatim** shortcut from the RED baseline (T02). Recognize the
-phrase and apply the counter — the phrase is the trigger, the counter is the rule.
+Six rows below are **verbatim** shortcuts from the RED baseline (T02); the last
+row is the direction shortcut named in the spec (§6). Recognize the phrase and
+apply the counter — the phrase is the trigger, the counter is the rule.
 
 | Rationalization (verbatim) | Counter |
 |---|---|
