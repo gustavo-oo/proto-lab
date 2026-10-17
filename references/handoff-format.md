@@ -157,15 +157,15 @@ placeholder**. It also points back to where each decision was recorded.
 - name: Button
   states: default, hover, focus, active, disabled
   fidelity: intentional
-  where: `chosen/d1-b/`, `styleguide.html#button` — decision: `decisions.md` (d1)
+  where: `chosen/d1/`, `styleguide.html#button` — decision: `decisions.md` (d1)
 - name: Card
   states: default, hover
   fidelity: placeholder
-  where: `chosen/d2-a/` — decision: `decisions.md` (d2); image area is a CSS/SVG placeholder
+  where: `chosen/d2/` — decision: `decisions.md` (d2); image area is a CSS/SVG placeholder
 - name: Nav
   states: default, collapsed
   fidelity: intentional
-  where: `chosen/d1-b/index.html` — decision: `decisions.md` (d1)
+  where: `chosen/d1/index.html` — decision: `decisions.md` (d1)
 
 ## Fidelity notes
 - intentional: <what is deliberate — the grid, the type scale, the motion
