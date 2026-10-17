@@ -50,12 +50,13 @@ CREAM_BACKGROUNDS = ("#faf8f4", "#f5f0e8")
 GREY_BODY_TEXT = ("#6b7280", "#9ca3af", "#94a3b8")
 """F15: the below-contrast grey body text colours."""
 
+# Pictographic / checkbox-dingbat emoji only. Arrows (U+2190-21FF) and the
+# misc-arrows block (U+2B00-2BFF) are deliberately excluded: a decorative "→"
+# in a heading is not an emoji icon, and F09 is `solid` (counts unconditionally).
 EMOJI_RE = re.compile(
-    "[" 
+    "["
     "\U0001F000-\U0001FAFF"  # pictographs, emoticons, symbols, flags
-    "\u2190-\u21FF"          # arrows
-    "\u2600-\u27BF"          # misc symbols + dingbats (incl. ✅ ✨)
-    "\u2B00-\u2BFF"          # misc arrows and symbols
+    "\u2600-\u27BF"          # misc symbols + dingbats (incl. ✅ ✨ ⚡)
     "\uFE0F\u200D"           # variation selector, zero-width joiner
     "]"
 )
@@ -377,7 +378,12 @@ def _r14_cream_amber(ctx):
 def _r15_grey_text(ctx):
     """F15: below-contrast grey body text colour."""
     for hex_value in GREY_BODY_TEXT:
-        if re.search(r"color\s*:\s*" + re.escape(hex_value), ctx.low):
+        # Negative lookbehind: only the `color` property, not a property that
+        # merely ends in it (`border-color`, `background-color`, ...), which is
+        # not body text and must not fire this `solid` fingerprint.
+        if re.search(
+            r"(?<![-\w])color\s*:\s*" + re.escape(hex_value), ctx.low
+        ):
             return "grey body text %s" % hex_value
     return None
 
@@ -507,7 +513,15 @@ def check_html(html, allow_fonts=None):
 
 
 def check_paths(paths, allow_fonts=None):
-    """Scan one or more files; return hits, count and the ``pass``/``fail`` verdict."""
+    """Scan file(s); return ``{"hits", "count", "verdict"}``.
+
+    **Single-page contract.** The ``>= 4 hits`` threshold is a *per-page*
+    verdict, and the pipeline calls this once per variant page. When several
+    paths are passed, their hits are concatenated and a single count/verdict is
+    returned for the whole set -- so a caller must not hand in many pages
+    expecting a per-page verdict (that would sum unrelated pages and can fail a
+    set whose individual pages all pass).
+    """
     if isinstance(paths, (str, bytes, os.PathLike)):
         paths = [paths]
     hits = []

@@ -52,8 +52,12 @@ def _run_cli(*args):
     )
 
 
+def _fps(findings):
+    return {hit["fingerprint"] for hit in findings}
+
+
 def _fingerprints(result):
-    return {hit["fingerprint"] for hit in result["hits"]}
+    return _fps(result["hits"])
 
 
 class RuleTableTest(unittest.TestCase):
@@ -121,10 +125,51 @@ class BoundaryTest(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertEqual(json.loads(proc.stdout)["count"], 3)
 
+    def test_boundary_four_fingerprints_are_pinned(self):
+        result = check_slop.check_paths([FIXTURES / "boundary_four.html"])
+        self.assertEqual(result["count"], 4, result["hits"])
+        self.assertEqual(_fingerprints(result), {"F02", "F05", "F09", "F15"})
+        self.assertEqual(result["verdict"], "fail")
+
     def test_boundary_four_cli_exit_one(self):
         proc = _run_cli(str(FIXTURES / "boundary_four.html"))
         self.assertEqual(proc.returncode, 1, proc.stderr)
-        self.assertGreaterEqual(json.loads(proc.stdout)["count"], 4)
+        self.assertEqual(_fingerprints(json.loads(proc.stdout)), {"F02", "F05", "F09", "F15"})
+
+
+class FalsePositiveTest(unittest.TestCase):
+    """Precision guards at the gate: only real fingerprints count.
+
+    F15 is ``solid`` (counts unconditionally), and F09 is ``solid`` too, so a
+    spurious match on a legitimate page can flip a 3-hit page to ``fail``.
+    These tests forbid matching a property that merely *ends* in ``color`` and
+    forbid treating a decorative arrow as an emoji.
+    """
+
+    def test_border_color_grey_does_not_fire_f15(self):
+        html = '<style>.card { border-color: #6b7280; }</style><h1>Report</h1>'
+        self.assertNotIn("F15", _fps(check_slop.check_html(html)))
+
+    def test_background_color_grey_does_not_fire_f15(self):
+        html = "<style>.card { background-color: #94a3b8; }</style>"
+        self.assertNotIn("F15", _fps(check_slop.check_html(html)))
+
+    def test_grey_text_color_still_fires_f15(self):
+        html = "<style>p { color: #9ca3af; }</style>"
+        self.assertIn("F15", _fps(check_slop.check_html(html)))
+
+    def test_grey_border_only_fixture_is_clean(self):
+        result = check_slop.check_paths([FIXTURES / "grey_border_only.html"])
+        self.assertEqual(result["count"], 0, result["hits"])
+        self.assertEqual(result["verdict"], "pass")
+
+    def test_arrow_in_heading_does_not_fire_f09(self):
+        html = "<h1>Next → step</h1>"
+        self.assertNotIn("F09", _fps(check_slop.check_html(html)))
+
+    def test_emoji_in_heading_still_fires_f09(self):
+        html = "<h1>Launch 🚀</h1>"
+        self.assertIn("F09", _fps(check_slop.check_html(html)))
 
 
 class AllowFontTest(unittest.TestCase):
