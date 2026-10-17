@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>d1-a · Tabela densa · registro</title>
+<!-- option a · listing-pattern · direção D10 · Blueprint / Schematic (seed cafe-com-leite) -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;600&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* D10 · Blueprint / Schematic — campo branco-azulado invertido, linework ciano,
+   raio 0, hierarquia por opacidade. Knobs: density_shift +1, accent #00E5FF. */
+:root{
+  --paper:#F4F7FA;
+  --plate:#FFFFFF;
+  --ink:#0A1628;
+  --ink-2:#1A3A5C;
+  --muted:#3C4C60;
+  --line:rgba(26,58,92,.34);
+  --line-soft:rgba(26,58,92,.13);
+  --accent:#00E5FF;
+  --annot:#B3182B;
+  --ok:#146B45;
+  --mono:'Space Mono','IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --label:'Archivo Narrow','Arial Narrow','Helvetica Neue',Arial,sans-serif;
+  --grid:24px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  color:var(--ink);
+  font-family:var(--mono);
+  font-size:13px;
+  line-height:1.45;
+  background-color:var(--paper);
+  background-image:
+    repeating-linear-gradient(0deg,var(--line-soft) 0 1px,transparent 1px var(--grid)),
+    repeating-linear-gradient(90deg,var(--line-soft) 0 1px,transparent 1px var(--grid));
+}
+h1,h2,h3{font-family:var(--label);font-weight:600;margin:0}
+a{color:var(--ink);text-decoration:none}
+a:hover{background:rgba(0,229,255,.28)}
+a:focus-visible{outline:2px solid var(--annot);outline-offset:2px}
+.topbar{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;
+  padding:9px 14px;background:var(--plate);
+  border-bottom:1px solid var(--ink);
+  position:sticky;top:0;z-index:3;
+}
+.topbar__back{
+  font-family:var(--label);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  padding:3px 7px;background:var(--accent);border-bottom:0;
+}
+.topbar__eyebrow{font-family:var(--label);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.topbar__label{font-size:15px;letter-spacing:.01em}
+.nav{display:flex;gap:8px;margin-left:auto}
+.nav a{
+  font-family:var(--label);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  padding:3px 8px;border:1px solid var(--line);
+}
+.nav a[aria-current="page"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.stage{padding:18px 14px 8px;max-width:1120px}
+.mark{position:relative}
+.mark::before,.mark::after{content:"";position:absolute;width:15px;height:15px}
+.mark::before{
+  top:-1px;left:-1px;
+  background:
+    linear-gradient(var(--ink-2),var(--ink-2)) left top/15px 2px no-repeat,
+    linear-gradient(var(--ink-2),var(--ink-2)) left top/2px 15px no-repeat;
+}
+.mark::after{
+  bottom:-1px;right:-1px;
+  background:
+    linear-gradient(var(--ink-2),var(--ink-2)) right bottom/15px 2px no-repeat,
+    linear-gradient(var(--ink-2),var(--ink-2)) right bottom/2px 15px no-repeat;
+}
+.annot{
+  font-family:var(--label);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 5px;
+}
+.hairline{border:0;border-top:1px solid var(--line-soft);margin:22px 0}
+.titleblock{
+  margin:26px 14px 34px;border:1px solid var(--ink-2);background:var(--plate);
+  max-width:1120px;border-collapse:collapse;width:calc(100% - 28px);
+}
+.titleblock th,.titleblock td{
+  padding:5px 7px;font-size:11px;text-align:left;vertical-align:top;
+  border-top:1px solid var(--line-soft);
+}
+.titleblock th{
+  font-family:var(--label);font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted);font-weight:400;white-space:nowrap;
+}
+.gauge{display:inline-flex;gap:3px;align-items:flex-end;height:13px;margin:0}
+.gauge span{display:block;width:9px;height:6px;background:var(--line-soft);border:1px solid var(--line)}
+.gauge span.on{background:var(--accent);border-color:var(--ink-2)}
+.gauge span.on-ink{background:var(--ink-2);border-color:var(--ink-2)}
+.sheet__title{font-size:19px;letter-spacing:.02em}
+.sheet__meta{margin:4px 0 0;color:var(--muted);font-size:12px}
+.panel{border:1px solid var(--line);background:var(--plate);padding:12px 13px}
+.panel__title{font-family:var(--label);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.kv{width:100%;border-collapse:collapse}
+.kv th,.kv td{padding:4px 0;border-top:1px solid var(--line-soft);font-size:12px;text-align:left;vertical-align:top}
+.kv th{font-family:var(--label);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:400;width:42%}
+.num{font-variant-numeric:tabular-nums}
+.back{font-family:var(--label);font-size:11px;letter-spacing:.14em;text-transform:uppercase;border-bottom:1px solid var(--line)}
+.diagram{margin:16px 0 0;padding:12px;border:1px solid var(--line-soft);background:var(--plate)}
+.diagram svg{display:block;width:100%;height:auto}
+.diagram figcaption{font-family:var(--label);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+@media (max-width:640px){
+  .stage{padding:14px 10px 4px}
+  body{font-size:12px}
+  .titleblock{width:calc(100% - 20px);margin:20px 10px 26px}
+  .titleblock th{white-space:normal}
+}
+
+.sheet{border:1px solid var(--line);background:var(--plate);padding:0}
+.sheet__head{padding:12px 12px 10px;border-bottom:2px solid var(--ink-2)}
+table.spec{width:100%;border-collapse:collapse;table-layout:fixed}
+table.spec th{
+  font-family:var(--label);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);font-weight:400;padding:6px 8px;text-align:left;
+  border-bottom:1px solid var(--ink-2);background:var(--paper);
+}
+table.spec td{padding:7px 8px;border-bottom:1px solid var(--line-soft);font-size:12px;vertical-align:top}
+table.spec tbody tr:nth-child(odd) td{background:rgba(26,58,92,.035)}
+table.spec td.c-origem{white-space:normal;word-break:break-word}
+table.spec td.c-nota{text-align:right}
+col.c-date{width:12%}col.c-origem{width:37%}col.c-method{width:15%}
+col.c-dose{width:9%}col.c-ratio{width:10%}col.c-time{width:9%}col.c-nota{width:8%}
+.rec__title{font-size:24px;letter-spacing:.01em;margin-bottom:2px}
+.rec__sub{margin:0 0 12px;color:var(--muted);font-size:12px}
+.rec__grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:12px}
+.rec__notes{margin:0 0 10px}
+@media (max-width:640px){
+  col.c-dose,col.c-ratio,col.c-time{width:0}
+  table.spec th.c-dose,table.spec td.c-dose,
+  table.spec th.c-ratio,table.spec td.c-ratio,
+  table.spec th.c-time,table.spec td.c-time{display:none}
+  col.c-date{width:16%}col.c-origem{width:52%}col.c-method{width:20%}col.c-nota{width:12%}
+  .rec__grid{grid-template-columns:minmax(0,1fr)}
+  .rec__title{font-size:20px}
+}
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="topbar__back" href="../../index.html">galeria</a>
+    <span class="topbar__eyebrow">variante a</span>
+    <h1 class="topbar__label">Tabela densa</h1>
+    <nav class="nav" aria-label="telas da variante">
+      <a href="index.html">log</a>
+      <a href="detail.html" aria-current="page">detalhe</a>
+    </nav>
+  </header>
+
+  <main class="stage">
+
+    <article class="plate mark" style="border:1px solid var(--line);background:var(--plate);padding:14px">
+      <p class="annot">registro 04 · 15/10/2026 · 07:20</p>
+      <h2 class="rec__title">Quênia · Nyeri AA</h2>
+      <p class="rec__sub">grão: SL28 · torra clara · método V60</p>
+      <div class="rec__grid">
+        <section class="panel">
+          <h3 class="panel__title">preparo</h3>
+          <table class="kv">
+            <tr><th scope="row">dose</th><td class="num">15 g de café</td></tr>
+            <tr><th scope="row">água</th><td class="num">250 ml a 94 °C</td></tr>
+            <tr><th scope="row">razão</th><td class="num">1:16,7</td></tr>
+            <tr><th scope="row">moagem</th><td>média-fina · 22 cliques</td></tr>
+            <tr><th scope="row">tempo</th><td class="num">3:05</td></tr>
+            <tr><th scope="row">filtro</th><td>V60 02 · papel branco</td></tr>
+          </table>
+        </section>
+        <section class="panel">
+          <h3 class="panel__title">notas de sabor</h3>
+          <p class="rec__notes">groselha preta, tomate, açúcar mascavo; acidez alta, final longo</p>
+          <p style="margin:0 0 6px"><span class="gauge" role="img" aria-label="nota 5 de 5"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span></span></p>
+          <p class="annot" style="margin:0">o que repetir: mesma moagem, despejo final mais lento</p>
+        </section>
+      </div>
+      
+  <figure class="diagram mark">
+    <svg viewBox="0 0 300 150" role="img" aria-label="esquema de preparo V60 com cota de água">
+      <g fill="none" stroke="#1A3A5C" stroke-width="1.4">
+        <path d="M96 34 L150 104 L204 34"></path>
+        <path d="M104 34 L150 95 L196 34"></path>
+        <path d="M150 104 L150 118"></path>
+        <path d="M126 122 L174 122"></path>
+        <path d="M140 8 L160 8 L160 34 L140 34 Z"></path>
+      </g>
+      <g stroke="#1A3A5C" stroke-width="1" stroke-dasharray="3 3" fill="none">
+        <path d="M60 122 L240 122"></path>
+        <path d="M60 20 L40 20 L40 122"></path>
+      </g>
+      <g stroke="#B3182B" stroke-width="1" fill="none">
+        <path d="M40 20 L34 20 M40 122 L34 122"></path>
+        <path d="M240 122 L246 122"></path>
+      </g>
+      <g fill="#0A1628" font-family="monospace" font-size="9">
+        <text x="8" y="74">250 ml</text>
+        <text x="120" y="140">V60 02</text>
+        <text x="206" y="126">desenho 1:1</text>
+      </g>
+      <g fill="#1A3A5C" font-family="monospace" font-size="8">
+        <text x="52" y="14">A</text>
+        <text x="248" y="14">A'</text>
+      </g>
+    </svg>
+    <figcaption>esquema · V60, moagem média-fina, quatro despejos</figcaption>
+  </figure>
+
+      <p style="margin:16px 0 0"><a class="back" href="index.html">voltar ao registro</a></p>
+    </article>
+
+  </main>
+
+  <table class="titleblock">
+    <tr>
+      <th scope="row">prancha</th><td>d1-a · Tabela densa · registro</td>
+      <th scope="row">projeto</th><td>diário pessoal de cafés</td>
+    </tr>
+    <tr>
+      <th scope="row">direção</th><td>D10 · Blueprint / Schematic</td>
+      <th scope="row">semente</th><td>cafe-com-leite</td>
+    </tr>
+    <tr>
+      <th scope="row">escala</th><td>1:1 · alvo 390px</td>
+      <th scope="row">handoff</th><td>tokens.css · styleguide.html</td>
+    </tr>
+  </table>
+</body>
+</html>

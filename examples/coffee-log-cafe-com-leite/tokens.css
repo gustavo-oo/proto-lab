@@ -1,0 +1,43 @@
+/* tokens.css — core scales of D10 (Blueprint / Schematic), derived from the
+   chosen variant `chosen/d1/` (option c, feed de coluna única) and the direction
+   card `direction.json`. Every value below already exists in the chosen variant
+   or the card; nothing was invented, averaged or "cleaned up". */
+:root{
+  /* --color-* : palette roles (D10 inverted white-blue field, one cyan accent) */
+  --color-bg:#F4F7FA;            /* paper · body background */
+  --color-surface:#FFFFFF;       /* plate · opaque content plate */
+  --color-ink:#0A1628;           /* primary text */
+  --color-ink-2:#1A3A5C;         /* linework / 2px rules / corner brackets */
+  --color-muted:#3C4C60;         /* labels, annotations, meta */
+  --color-line:rgba(26,58,92,.34);
+  --color-line-soft:rgba(26,58,92,.13);
+  --color-accent:#00E5FF;        /* knob accent · back-chip fill */
+  --color-annotation:#B3182B;    /* focus ring / margin notes */
+  --color-ok:#146B45;
+
+  /* --font-* : <=2 families + <=1 mono, each with a same-class fallback */
+  --font-display:'Archivo Narrow','Arial Narrow','Helvetica Neue',Arial,sans-serif;
+  --font-body:'Space Mono','IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --font-mono:'Space Mono','IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --font-size-label:10px;        /* uppercase eyebrow / table headers */
+  --font-size-body-compact:12px; /* meta lines, kv cells */
+  --font-size-body:13px;         /* body copy */
+  --font-size-title:19px;        /* log / feed section title */
+  --font-size-read:25px;         /* detail record title */
+
+  /* --space-* : spacing ramp observed in the chosen variant (2px steps) */
+  --space-1:2px;
+  --space-2:6px;
+  --space-3:10px;
+  --space-4:14px;
+  --space-5:18px;
+  --space-6:22px;
+
+  /* --radius-* : D10 declares a single corner language — square */
+  --radius-none:0;
+
+  /* --motion-* : the chosen variant declares no transition — state is instant */
+  --motion-fast:0s;
+  --motion-slow:0s;
+  --motion-ease:linear;
+}

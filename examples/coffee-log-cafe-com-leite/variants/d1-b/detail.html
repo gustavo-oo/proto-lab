@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>d1-b · Grade de cartões · registro</title>
+<!-- option b · listing-pattern · direção D10 · Blueprint / Schematic (seed cafe-com-leite) -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;600&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* D10 · Blueprint / Schematic — campo branco-azulado invertido, linework ciano,
+   raio 0, hierarquia por opacidade. Knobs: density_shift +1, accent #00E5FF. */
+:root{
+  --paper:#F4F7FA;
+  --plate:#FFFFFF;
+  --ink:#0A1628;
+  --ink-2:#1A3A5C;
+  --muted:#3C4C60;
+  --line:rgba(26,58,92,.34);
+  --line-soft:rgba(26,58,92,.13);
+  --accent:#00E5FF;
+  --annot:#B3182B;
+  --ok:#146B45;
+  --mono:'Space Mono','IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --label:'Archivo Narrow','Arial Narrow','Helvetica Neue',Arial,sans-serif;
+  --grid:24px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  color:var(--ink);
+  font-family:var(--mono);
+  font-size:13px;
+  line-height:1.45;
+  background-color:var(--paper);
+  background-image:
+    repeating-linear-gradient(0deg,var(--line-soft) 0 1px,transparent 1px var(--grid)),
+    repeating-linear-gradient(90deg,var(--line-soft) 0 1px,transparent 1px var(--grid));
+}
+h1,h2,h3{font-family:var(--label);font-weight:600;margin:0}
+a{color:var(--ink);text-decoration:none}
+a:hover{background:rgba(0,229,255,.28)}
+a:focus-visible{outline:2px solid var(--annot);outline-offset:2px}
+.topbar{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;
+  padding:9px 14px;background:var(--plate);
+  border-bottom:1px solid var(--ink);
+  position:sticky;top:0;z-index:3;
+}
+.topbar__back{
+  font-family:var(--label);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  padding:3px 7px;background:var(--accent);border-bottom:0;
+}
+.topbar__eyebrow{font-family:var(--label);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.topbar__label{font-size:15px;letter-spacing:.01em}
+.nav{display:flex;gap:8px;margin-left:auto}
+.nav a{
+  font-family:var(--label);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  padding:3px 8px;border:1px solid var(--line);
+}
+.nav a[aria-current="page"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.stage{padding:18px 14px 8px;max-width:1120px}
+.mark{position:relative}
+.mark::before,.mark::after{content:"";position:absolute;width:15px;height:15px}
+.mark::before{
+  top:-1px;left:-1px;
+  background:
+    linear-gradient(var(--ink-2),var(--ink-2)) left top/15px 2px no-repeat,
+    linear-gradient(var(--ink-2),var(--ink-2)) left top/2px 15px no-repeat;
+}
+.mark::after{
+  bottom:-1px;right:-1px;
+  background:
+    linear-gradient(var(--ink-2),var(--ink-2)) right bottom/15px 2px no-repeat,
+    linear-gradient(var(--ink-2),var(--ink-2)) right bottom/2px 15px no-repeat;
+}
+.annot{
+  font-family:var(--label);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 5px;
+}
+.hairline{border:0;border-top:1px solid var(--line-soft);margin:22px 0}
+.titleblock{
+  margin:26px 14px 34px;border:1px solid var(--ink-2);background:var(--plate);
+  max-width:1120px;border-collapse:collapse;width:calc(100% - 28px);
+}
+.titleblock th,.titleblock td{
+  padding:5px 7px;font-size:11px;text-align:left;vertical-align:top;
+  border-top:1px solid var(--line-soft);
+}
+.titleblock th{
+  font-family:var(--label);font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted);font-weight:400;white-space:nowrap;
+}
+.gauge{display:inline-flex;gap:3px;align-items:flex-end;height:13px;margin:0}
+.gauge span{display:block;width:9px;height:6px;background:var(--line-soft);border:1px solid var(--line)}
+.gauge span.on{background:var(--accent);border-color:var(--ink-2)}
+.gauge span.on-ink{background:var(--ink-2);border-color:var(--ink-2)}
+.sheet__title{font-size:19px;letter-spacing:.02em}
+.sheet__meta{margin:4px 0 0;color:var(--muted);font-size:12px}
+.panel{border:1px solid var(--line);background:var(--plate);padding:12px 13px}
+.panel__title{font-family:var(--label);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.kv{width:100%;border-collapse:collapse}
+.kv th,.kv td{padding:4px 0;border-top:1px solid var(--line-soft);font-size:12px;text-align:left;vertical-align:top}
+.kv th{font-family:var(--label);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:400;width:42%}
+.num{font-variant-numeric:tabular-nums}
+.back{font-family:var(--label);font-size:11px;letter-spacing:.14em;text-transform:uppercase;border-bottom:1px solid var(--line)}
+.diagram{margin:16px 0 0;padding:12px;border:1px solid var(--line-soft);background:var(--plate)}
+.diagram svg{display:block;width:100%;height:auto}
+.diagram figcaption{font-family:var(--label);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+@media (max-width:640px){
+  .stage{padding:14px 10px 4px}
+  body{font-size:12px}
+  .titleblock{width:calc(100% - 20px);margin:20px 10px 26px}
+  .titleblock th{white-space:normal}
+}
+
+.grid-head{padding:2px 0 12px;border-bottom:2px solid var(--ink-2);margin-bottom:14px}
+.cards{list-style:none;margin:0;padding:0;display:grid;gap:14px;
+  grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.card{border:1px solid var(--line);background:var(--plate);padding:8px}
+.card__link{display:block}
+.card__plate{
+  display:block;aspect-ratio:4/3;border:1px solid var(--line-soft);
+  background-color:var(--paper);
+  background-image:repeating-linear-gradient(45deg,rgba(26,58,92,.10) 0 1px,transparent 1px 7px);
+  position:relative;
+}
+.card__plate::after{
+  content:attr(data-plate);position:absolute;right:6px;bottom:2px;
+  font-family:var(--label);font-size:26px;letter-spacing:.02em;
+  color:rgba(26,58,92,.22);
+}
+.card__no{display:block;font-family:var(--label);font-size:9px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--muted);margin:8px 0 2px}
+.card__title{display:block;font-family:var(--label);font-size:15px;font-weight:600}
+.card__brief{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.card__notes{display:block;font-size:11px;margin-top:6px}
+.card__foot{display:flex;align-items:center;gap:8px;margin-top:8px;
+  border-top:1px solid var(--line-soft);padding-top:6px;font-size:11px}
+.card__score{margin-left:auto;font-variant-numeric:tabular-nums}
+.fiche{border:1px solid var(--line);background:var(--plate);padding:12px}
+.fiche__plate{
+  height:190px;border:1px solid var(--line-soft);background-color:var(--paper);
+  background-image:repeating-linear-gradient(45deg,rgba(26,58,92,.10) 0 1px,transparent 1px 7px);
+  position:relative;margin-bottom:12px;
+}
+.fiche__plate svg{position:absolute;left:6%;top:8%;width:88%;height:84%}
+.fiche__title{font-size:22px}
+.fiche__sub{margin:2px 0 12px;color:var(--muted);font-size:12px}
+.fiche__cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.dim{font-family:var(--label);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+@media (max-width:640px){
+  .cards{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .fiche__cols{grid-template-columns:minmax(0,1fr)}
+  .fiche__plate{height:150px}
+}
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="topbar__back" href="../../index.html">galeria</a>
+    <span class="topbar__eyebrow">variante b</span>
+    <h1 class="topbar__label">Grade de cartões</h1>
+    <nav class="nav" aria-label="telas da variante">
+      <a href="index.html">log</a>
+      <a href="detail.html" aria-current="page">detalhe</a>
+    </nav>
+  </header>
+
+  <main class="stage">
+
+    <article class="fiche mark">
+      <p class="annot">prancha 04 · ficha de amostra</p>
+      <div class="fiche__plate">
+        <svg viewBox="0 0 300 150" role="img" aria-label="esquema da prancha: cone V60 com cota de água">
+          <g fill="none" stroke="#1A3A5C" stroke-width="1.4">
+            <path d="M96 34 L150 104 L204 34"></path>
+            <path d="M150 104 L150 118"></path>
+            <path d="M126 122 L174 122"></path>
+          </g>
+          <g stroke="#1A3A5C" stroke-width="1" stroke-dasharray="3 3" fill="none">
+            <path d="M56 122 L244 122"></path>
+            <path d="M56 22 L36 22 L36 122"></path>
+          </g>
+          <g stroke="#B3182B" stroke-width="1" fill="none">
+            <path d="M36 22 L29 22 M36 122 L29 122"></path>
+          </g>
+          <g fill="#0A1628" font-family="monospace" font-size="9">
+            <text x="6" y="76">250 ml</text>
+            <text x="118" y="142">V60 02 · 1:1</text>
+          </g>
+        </svg>
+      </div>
+      <h2 class="fiche__title">Quênia · Nyeri AA</h2>
+      <p class="fiche__sub">grão: SL28 · torra clara · método V60</p>
+      <div class="fiche__cols">
+        <section>
+          <p class="dim">preparo</p>
+          <table class="kv">
+            <tr><th scope="row">dose</th><td class="num">15 g</td></tr>
+            <tr><th scope="row">água</th><td class="num">250 ml a 94 °C</td></tr>
+            <tr><th scope="row">razão</th><td class="num">1:16,7</td></tr>
+            <tr><th scope="row">tempo</th><td class="num">3:05</td></tr>
+            <tr><th scope="row">moagem</th><td>média-fina · 22 cliques</td></tr>
+          </table>
+        </section>
+        <section>
+          <p class="dim">notas de sabor</p>
+          <p style="margin:0 0 8px">groselha preta, tomate, açúcar mascavo; acidez alta, final longo</p>
+          <p style="margin:0 0 6px"><span class="gauge" role="img" aria-label="nota 5 de 5"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span></span></p>
+          <p class="annot" style="margin:0">nota 5/5 · repetir com despejo final mais lento</p>
+        </section>
+      </div>
+      <hr class="hairline">
+      <p style="margin:0"><a class="back" href="index.html">voltar às pranchas</a></p>
+    </article>
+
+  </main>
+
+  <table class="titleblock">
+    <tr>
+      <th scope="row">prancha</th><td>d1-b · Grade de cartões · registro</td>
+      <th scope="row">projeto</th><td>diário pessoal de cafés</td>
+    </tr>
+    <tr>
+      <th scope="row">direção</th><td>D10 · Blueprint / Schematic</td>
+      <th scope="row">semente</th><td>cafe-com-leite</td>
+    </tr>
+    <tr>
+      <th scope="row">escala</th><td>1:1 · alvo 390px</td>
+      <th scope="row">handoff</th><td>tokens.css · styleguide.html</td>
+    </tr>
+  </table>
+</body>
+</html>
