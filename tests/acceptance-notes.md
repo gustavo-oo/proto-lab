@@ -128,9 +128,15 @@ geração rodou como processo **externo** `opencode run --standalone --auto`
 (método T17/T18, `t18-transcripts/{run_one_t18.sh,resume_t18.sh}`). Cada agente leu
 o `SKILL.md` do worktree empacotado no scratch, recebeu o **mesmo brief do exemplo**
 (`examples/coffee-log-cafe-com-leite/brief.md`), a seed fixa, `--skip-research`,
-`--points 1` e `--variants 1` (corte de escopo deliberado: a aceitação quer **uma
-tela principal por direção**, não a sessão completa — o cap `--variants` é
-exatamente o mecanismo de corte de escopo do SKILL.md; nenhuma etapa foi pulada).
+`--points 1` e `--variants 1`. **Escopo declarado sem eufemismo:** a aceitação quer
+**uma tela principal por direção** ("1 tela", como pede o brief), e `--variants 1`
+é uma **devição abaixo do piso documentado da skill** — `SKILL.md` define a flag
+como *"2 allowed, capped at 3"* e a constraint global diz *"3 variantes (2 permitido
+via flag)"*, ou seja o piso sancionado é **2**, não 1. A única justificativa para ir
+abaixo disso é que este experimento compara **cartas de direção** (seeds →
+direções), não variantes, e uma variante basta como a tela principal. Isso **não** é
+um "corte de escopo" sancionado pelo SKILL.md — é uma deviação declarada — e por
+isso esta rodada **não** é uma sessão de pipeline completa e conforme.
 
 **Scratch (fora do repo).**
 
@@ -246,9 +252,13 @@ Mesma seed → mesma carta, sem timestamp.
 
 - **Screenshots não commitados** (imagem binária proibida). A evidência vive nos
   caminhos absolutos + dimensões + `sha256` acima.
-- **1 variante por seed** (`--variants 1`) em vez das 3 default — corte de escopo
-  explícito para a aceitação comparar **uma** tela principal por direção; as demais
-  etapas (roll, gate, geração, juiz) rodaram normalmente.
+- **`--variants 1` é deviação declarada, não um corte sancionado.** O piso
+  documentado da skill é **2** (`SKILL.md`: *"2 allowed, capped at 3"*; constraint
+  global: *"3 variantes (2 permitido via flag)"*). A aceitação rodou com **1** por
+  comparar **cartas de direção**, não variantes. As demais etapas (roll, gate,
+  geração, juiz) rodaram, mas por causa desse desvio esta rodada **não** é uma
+  sessão de pipeline completa e conforme — o que ela prova é a divergência de
+  **cards** entre seeds, não a conformidade do pipeline.
 - **Flakiness de provider.** `jev` (429) **pendurou** o 1º turno de `s7` por ~22 min;
   o processo foi morto e o 1º turno relançado (log preservado em
   `log-s7.hung.235448.txt`). O juiz do pipeline de `cafe-com-leite` e `s7` também
