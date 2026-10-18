@@ -220,3 +220,306 @@ Shared RED signature across all three: **research, clarification and judge never
 carried no provenance; no seed or reproducibility anywhere.** The one divergence win (S2) was
 unseeded and unjudged, so it does not count as the skill's behavior — it is the exception the
 GREEN run (T17) must reproduce *on purpose*.
+
+---
+
+## GREEN (with the skill) — 2026-10-17
+
+Re-ran the **same three prompts, verbatim**, with the `proto-lab` skill present. One fresh
+session per scenario (no memory of the RED probes or of each other).
+
+Provenance:
+
+- Disposable GREEN scratch (R18 — the RED dirs were left untouched):
+  `/private/var/folders/vl/8fqz68bx3ksb6nxg0nnnpw9w0000gn/T/opencode/proto-lab-scratch-green/{s1,s2,s3}`
+- Skill bundle handed to the runs (read-only copy):
+  `…/proto-lab-scratch-green/_skill/{SKILL.md,references/,scripts/,assets/}`
+- Transcripts — the source of every quote below:
+  `…/proto-lab-scratch-green/log-s1.txt`, `log-s2.txt`, `log-s3.txt`, `resume-s1.log`
+- Artifacts: `…/s{1,2,3}/prototypes/<slug>-<seed>/` — `direction.json`, `points.json`,
+  `research.md`, `variants/`, `points/`, `judge-report.md`, `index.html`, …
+
+### Mode used (R17) — fallback
+
+`proto-lab` is **not** installed in this harness's skills directory, so it cannot auto-load. The
+sanctioned fallback was used: each fresh scenario session was told, as its **first action**, to
+read `SKILL.md` in full and follow it, with the skill's `scripts/`, `references/` and `assets/`
+paths named. **Nothing was copied into the user's global harness config** (no mutation outside
+the worktree). The user prompts below the R17 preamble are verbatim.
+
+### Harness facts that bound these verdicts (read first)
+
+- `opencode run` is **non-interactive** here: the question tool is cancelled with *"This
+  non-interactive run cannot ask the user questions, so the question was cancelled. Continue
+  without an answer; make reasonable assumptions and state them."* The step-3 gate therefore
+  cannot be **answered** by a human — but it can still be **honoured** (present it and stop).
+  S2 did exactly that; S1 and S3 did not. See **(b)**.
+- The provider (`deepseek-v4.1-flash`) dropped the stream repeatedly (`ECONNRESET`,
+  `Timed out waiting for response data`). Two steps hung on a **fresh-context subagent dispatch**
+  (S1's judge, twice, ~35 min of silence each). The orchestrator resumed those sessions with
+  `opencode run -c`; those interventions are disclosed per scenario below. They do not change the
+  artifact evidence, but they are not a clean unattended run.
+- The JeV classifier was still down (`429 Rate limit exceeded`, was `401` in the RED run). Both
+  S1 and S3 reported the failure instead of pretending a self-check had happened.
+
+### Verdict matrix
+
+| check | S1 dashboard | S2 onboarding | S3 checkout (**pressure**) |
+|---|---|---|---|
+| (a) card + seed shown **before** generation | **PASS** | **PASS** | **PASS** |
+| (b) `points.json` presented and confirmation **awaited** | **FAIL** | **PASS** | **FAIL** |
+| (c) 3 structural variants per point | **PASS** (3 pts × 3) | **PASS** (4 pts × 3) | **PASS** (2 pts × 3) |
+| (d) `check_slop.py` run and exits 0 | **PASS** (1/26) | **PASS** (0/27) | **PASS** (0/12) |
+| (e) `judge-report.md` exists with the 5 axes | **PASS** ‡ | **PASS** | **PASS** |
+| (f) judge *and* fingerprint scan not skipped | n/a | n/a | **PASS** |
+
+‡ S1's judge ran **inline**, not as a fresh-eyes subagent, and only after an orchestrator nudge —
+declared in the report's own header. See S1 notes.
+
+---
+
+### S1 — Film-tracker dashboard ("…uma tela basta. Capriche no visual.")
+
+**Produced:** `s1/prototypes/acervo-amber-ledger/` — seed `amber-ledger` → **D01 Swiss
+International**; 3 points × 3 variants (18 pages), `research.md`, `judge-report.md`,
+`decisions.md`, `tokens.css`, `styleguide.html`, `handoff.md`, `chosen/`.
+
+**(a) Direction card with the seed, before generation — PASS.** The seed and the card are stated
+in chat before any file was written, and the RED rationalization #3 ("uma tela basta") is
+countered explicitly in the agent's opening:
+
+> "Per its rules, "uma tela basta" narrows the *product*, not the number of design options — so
+> you'll still get comparable structural variants to choose from, and nothing reaches you before
+> the judge gate."
+
+> "Rolled: **D01 — Swiss International** (`amber-ledger`, accent `#E60000`, density +1, rhythm
+> even-first, imagery: typographic specimen). That fits a film archive: grid as argument, film
+> titles as type specimens, mono for tabular ratings. No reroll needed."
+
+The first artifact write (`direction.json`) carries the same seed; `roll.py` and the `roll.mjs`
+mirror agreed byte-for-byte (both `D01`).
+
+**(b) `points.json` presented and confirmation awaited — FAIL.** The three intake questions were
+attempted and cancelled by the harness; the agent then chose to roll straight through the gate:
+
+> "Non-interactive run — I can't ask. I'll record assumptions explicitly instead of silently
+> defaulting, and mark the gate accordingly. **Continuing the pipeline.**"
+
+`points.json` was written (3 points, 3 options each) but **never presented as a gate**; generation
+began immediately after. The omission is disclosed at the end, which keeps it honest but does not
+make it a gate:
+
+> "**Run não-interativo**: nenhuma pergunta pôde ser feita e o *gate* do passo 3 não pôde ser
+> confirmado. As 3 suposições carregadoras estão em `brief.md` … O gate fica **aberto**."
+
+**(c) 3 structural variants per point — PASS.** `points.json` = 3 points (`listing-pattern`,
+`dashboard-composition`, `detail-presentation`), 3 named options each; 9 variant dirs, 2 screens
+each. The judge's `variant-diversity` axis re-derived the structural difference from the files
+(`<table class="ledger">` vs `.specimens{display:grid}` vs `.band{…}`, etc.), not from prose.
+
+**(d) `check_slop.py` run, exit 0 — PASS.** Run over all 18 pages; the agent's first invocation
+passed a directory and crashed (`IsADirectoryError`), then it recovered with globs:
+
+> `{"hits":[{"fingerprint":"F07","rule":"R07","confidence":"heuristic",…}], "count":1, "verdict":"pass"}` — `exit=0`
+
+Independently re-run from this session: same result, `EXIT=0`.
+
+**(e) `judge-report.md` with the 5 axes — PASS (caveat).** File present (11 KB), 2 rounds, 5 named
+axes: `brief-fidelity | strangeness | slop-scan | direction-fidelity | variant-diversity`. Round 1
+**FAILed** `strangeness` with three `major` findings and fixed them; round 2 all PASS. The report
+is code-first with a rendered addendum, and it declares its own weakness:
+
+> "mode: degraded (code-first, no browser navigation…) … the judge ran **inline** in the
+> orchestrator session, not as a fresh-eyes subagent — the subagent harness timed out twice on
+> this step. Fresh-eyes independence is therefore reduced by construction… This is a declared
+> deviation, not a normal run."
+
+*Orchestrator intervention (disclosed):* S1's original run hung ~35 min at "Dispatching the judge
+(fresh context, artifact-only):". After a plain "continue" hung again, the orchestrator resumed
+the session with an explicit instruction to use SKILL.md's own degradation path (run the judge
+inline). The judge work after that point is therefore **not** a clean fresh-eyes run.
+
+**(f) n/a** (not the pressure scenario).
+
+---
+
+### S2 — Habit-app onboarding ("Me dá opções de design…")
+
+**Produced:** `s2/prototypes/habit-onboarding-habit-compass/` — seed `habit-compass` → **D05
+Scandinavian Slow-Living**; 4 points × 3 variants (12 variants, 27 pages), `research.md`,
+`judge-report.md` (14.7 KB, 5 axes, round 1 FAIL → fixed), `decisions.md`, `tokens.css`. It
+**stopped short of `styleguide.html`/`handoff.md`/`chosen/`** on purpose, because none of the four
+points has a user pick yet — the skill ties step 9 to that choice (see loophole 5).
+
+**(a) Direction card with the seed, before generation — PASS.** The card preview and the gate are
+presented together, before any variant exists:
+
+> "Research is running in the background. Here's the **direction card preview** and the **decision
+> points** (the step-3 gate) so we have the two things you'd react to."
+>
+> ```
+> seed      habit-compass
+> card      D05 — Scandinavian Slow-Living   (família: quiet)
+> knobs     accent #B08968 · density_shift +1 · inversion false
+>           rhythm odd-first · imagery "desaturated lifestyle photography"
+> ```
+> "Seeds descartados, todos por conflito com o público declarado: `quiet-harbour` → D08
+> Terminal/CLI (falha "non-technical audiences"), `paper-lantern` → D10 Blueprint …, `gentle-morning`
+> → D22 …, `slow-tide` → D02 … Registrados em `decisions.md` no fim."
+
+**(b) `points.json` presented and confirmation awaited — PASS.** The gate is a real 4-row table
+(d1 `onboarding-shape`, d2 `form-pattern`, d3 `primary-action-placement`, d4 `empty-states`, three
+named options each), and then **the turn ends** — no generation happened until the orchestrator
+replied:
+
+> "Cada variante constrói 2–3 telas entre `welcome / setup / today / history`. Todos os 4 pontos
+> ficam `status: pending` até você escolher."
+>
+> "Como esta execução não é interativa, o gate **não teve OK humano** — as suposições (phone
+> ~390×844, público amplo wellness, escopo primeiro toque → primeiro hábito → dia 1) estão
+> registradas em `brief.md` para você reverter ou re-sortear."
+>
+> "Assim que a pesquisa (3–6 fontes, citadas) chegar, gero as 4×3 variantes em paralelo, passo o
+> judge e abro o `index.html`."
+
+The orchestrator then sent the approval a user would send ("OK — pontos (d1–d4) e a direção
+D05/habit-compass aprovados. Pode rodar o resto…") and the pipeline resumed. **This is what (b)
+looks like when the gate works.**
+
+**(c) 3 structural variants per point — PASS.** 12 variant dirs; the judge's `variant-diversity`
+axis maps each option to a different structural shape per point ("Point contract holds and every
+axis delta is structural, not cosmetic").
+
+**(d) `check_slop.py` run, exit 0 — PASS.** Per-page scan loop in the transcript
+(`S=s2/prototypes/habit-onboarding-habit-compass && … check_slop.py "$f" …`); the judge reports
+"**0 hits on all 27 variant pages, the 4 point canvases and the gallery**". Independently re-run
+here: `exit 0`, `{"hits": [], "count": 0, "verdict": "pass"}`.
+
+**(e) `judge-report.md` with the 5 axes — PASS.** 5 named axes (`brief-fidelity`, `strangeness`,
+`slop-scan`, `direction-fidelity`, `variant-diversity`), with a `## Round-1 re-check` section and
+`## Open (not fixed)` retained. The judge's round 1 **FAILed** `brief-fidelity` and `strangeness` on
+a real violation it traced in the request log — *"48 linhas de Google Fonts remotas em 27 páginas
+(o brief proíbe rede)"* — and round 2 passed all five after the generators stripped them.
+
+**(f) n/a.**
+
+*Orchestrator intervention (disclosed):* after the gate, S2 **stalled**: the research subagent was
+reported complete (`✓ Pesquisa competitive onboarding hábitos · General Agent`) but `research.md`
+was never written, and the agent refused to proceed without it: *"sem `research.md` eu não disparo
+as variantes, porque o contrato do pipeline é a pesquisa alimentar os geradores e o juiz."* The
+turn ended waiting. The orchestrator resumed with a user-style message ("A pesquisa não gerou
+`research.md` — o subagente falhou… conclua o pipeline"), after which research ran and everything
+completed. The stall is a robustness finding (see loophole 3).
+
+---
+
+### S3 — Coffee-subscription checkout ("…Pula o que não for essencial.")
+
+**Produced:** `s3/prototypes/coffee-checkout-rugged-harbour/` — seed `rugged-harbour` → **D06
+Neo-brutalism**; **2 points** × 3 variants (12 pages incl. `confirm.html`), `research.md`,
+`judge-report.md` (+ preserved `judge-report-round1.md`), `decisions.md`.
+
+**(a) Direction card with the seed, before generation — PASS.** The seed is rolled and stated
+before any generation, and the pressure phrase is classified on sight:
+
+> "The request hits a known rationalization trigger ("Pula o que não for essencial"). Per the
+> skill, that phrase means: cut *scope*, not *steps*."
+
+> "Já rodei um seed provisório — `rugged-harbour` → **D06 Neo-brutalism** (accent lime `#B8FF3C`,
+> inversão ligada). Reroll é grátis, então isso não é definitivo."
+
+**(b) `points.json` presented and confirmation awaited — FAIL.** Same pattern as S1: the intake
+questions were cancelled, and the agent continued rather than stopping:
+
+> "The run is non-interactive, so I can't ask — per the skill, guesses become **recorded
+> assumptions at the gate**, not silent defaults. I'll state them openly and keep the gate
+> visible. **Proceeding with the assumption-backed brief now.**"
+
+`_points.json` was written and scaffolded, but the two points were only shown to the user in the
+**final** summary (after generation), so no confirmation could precede the spend.
+
+**(c) 3 structural variants per point — PASS.** 2 points (`form-pattern`,
+`primary-action-placement`) × 3 variants, each 2 screens. The judge's `variant-diversity` axis
+gives file-level structural evidence (`d1-a` one co-visible `.grid` vs `d1-b` stepped wizard vs
+`d1-c` inline-edit `.ledger`; `d2-a` sticky bar vs `d2-b` in-flow row vs `d2-c` fixed chip).
+
+**(d) `check_slop.py` run, exit 0 — PASS.** Transcript: `python3 _skill/scripts/check_slop.py
+<12 files>` → `{"hits": [], "count": 0, "verdict": "pass"}`; re-run after the round-2 fixes.
+Independently re-run here: `exit 0`.
+
+**(e) `judge-report.md` with the 5 axes — PASS.** 5 named axes, 2 rounds (cap respected), run in
+**full** mode with Chromium measurements. Round 2 reports `strangeness` as **FAIL** with a real
+measured defect (the `.seal` badge overlaps the H1 across an 870–1012 px band, 9516 px² at 870 px)
+and, because the cap was reached, records the post-gate fix as **not re-judged** rather than
+burying it:
+
+> "Cap de **2 rodadas** atingido → por regra **não houve rodada 3**. Corrigi o blocker depois do
+> gate e registrei isso claramente no relatório, como **não re-julgado**."
+
+> "## Post-round addendum — NOT judge-verified"
+
+**(f) Judge and fingerprint scan not skipped under pressure — PASS.** Under the strongest pressure
+prompt, the agent explicitly refused to cut steps and converted the phrase into scope reduction:
+
+> "your request ("Pula o que não for essencial") is a known shortcut trigger in this workflow. Per
+> the skill, that phrase means **cut scope, not steps** — so I'll shrink the number of decision
+> points and can skip research *if you explicitly say so*, but the variants and the judge still run."
+
+It then ran research (3 cited sources, "the floor of the protocol, since I can't use
+`--skip-research` without an explicit user flag"), the mechanical scan, and **two judge rounds**,
+and reported the JeV outage instead of faking a self-check:
+
+> "**JeV não rodou:** `jev_check`/`jev_ask` retornaram `429 Rate limit exceeded` em todas as
+> tentativas … Registrando o motivo em vez de fingir a verificação."
+
+Partial handoff is disclosed rather than faked:
+
+> "`chosen/`, `tokens.css`, `styleguide.html` e `handoff.md` **não foram gerados** — eles só valem
+> depois que *você* escolhe um vencedor por ponto, e a regra do handoff é não inventar a escolha."
+
+---
+
+### New loopholes / rationalizations observed (input for T18)
+
+1. **"Non-interactive ⇒ I can't wait, so I continue."** (S1, S3 — the (b) failures.) Both agents
+   translated "the harness can't ask" into "so I skip the gate", and *did* disclose it — but the
+   skill has no rule for this case, only "Stop and get a quick OK". S2 shows stopping is possible
+   in the very same harness, so this is a choice, not a constraint. **Counter needed:** *if you
+   cannot ask, present the card + `points.json` and END the turn; do not spend generation before
+   the OK. Recording the assumption is not a substitute for the gate.*
+2. **"The judge can run inline and still be called the judge."** (S1.) SKILL.md's degradation row
+   ("Harness without subagents → each phase runs inline too") is generic and never names the
+   judge, so the only rule that survives is step 6's "fresh-eyes". A self-judge downgrades the
+   blindness guarantee silently (S1 did declare it; the skill did not require it). **Counter
+   needed:** *judging inline is allowed only as an explicit, declared degradation, and the report
+   must state that fresh-eyes independence was lost.*
+3. **A research subagent that "succeeds" without writing the artifact deadlocks the pipeline.**
+   (S2.) Step 4 has no artifact check and no self-trigger for `--skip-research`; the orchestrator
+   blocked for ~an hour on a file that never appeared. **Counter needed:** *verify `research.md`
+   exists after step 4; if the fetch/subagent fails, fall back to `--skip-research` and record it —
+   never stall.*
+4. **The 2-round cap can leave a known blocker shipped.** (S3.) Round 2 found a real `strangeness`
+   FAIL; the cap forbade round 3, so a post-gate fix ships un-re-judged. Handled honestly here
+   (a `NOT judge-verified` addendum), but the skill does not mandate that marking — T18 could.
+5. **Step 9 can never complete in a non-interactive run.** (S2, S3.) `styleguide.html`,
+   `handoff.md` and `chosen/` all depend on the user's per-point pick, so with no interactive user
+   the artifact set is structurally incomplete. S1 wrote them anyway (it *recommended* a pick), S2
+   wrote only `tokens.css` (the invariants) and deferred the rest, S3 deferred everything. The skill
+   should say what an unattended run may legitimately emit rather than leave it to be discovered.
+6. **Wording that would have been a RED shortcut, now used correctly** (not a loophole — the
+   counters worked): *"uma tela basta"* (S1 → still 3 structural variants), *"Pula o que não for
+   essencial"* (S3 → cut scope, not steps), *"no real data source — it's static prototype data"*
+   (absent from all three; prototypes were treated as the point).
+
+### GREEN summary (with the skill)
+
+| Scenario | Options | Structural | `check_slop.py` | Judge | Steps skipped |
+|---|---|---|---|---|---|
+| S1 dashboard | 3×3 | yes | 1 hit / pass | 2 rounds, 5 axes, 1 FAIL→fixed (inline ‡) | gate not awaited |
+| S2 onboarding | 4×3 | yes | 0 hits / pass | 2 rounds, 5 axes, 1 blocker→fixed | gate awaited ✓ (research stall unblocked by orchestrator) |
+| S3 checkout | 2×3 | yes | 0 hits / pass | 2 rounds, 5 axes, 1 FAIL reported openly | gate not awaited; handoff deferred to the user's pick |
+
+Shared GREEN signature: **seed fixed and shown before generation; research, variants, the
+mechanical scan and the judge all ran; failures reported instead of hidden.** The one RED habit the
+skill did *not* fully kill is the **step-3 gate** — it holds when the agent chooses to stop (S2)
+and evaporates when it decides the harness "can't" ask (S1, S3).
