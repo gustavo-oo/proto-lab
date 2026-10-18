@@ -556,11 +556,23 @@ scenarios to see whether the counters hold.
 
 | # | Loophole (T17 input) | Counter lives in `SKILL.md` | Observable predicate | Re-run result |
 |---|---|---|---|---|
-| 1 | "Non-interactive ⇒ I can't wait, so I continue." | step 3 block; Rationalizations → T18 table; Red Flags; Degradation row | `points.json` exists and `variants/` does not when the turn ends; no generation before the OK | **PASS** (S1 **and** S3 both stopped) |
+| 1 | "Non-interactive ⇒ I can't wait, so I continue." | step 3 block; Rationalizations → T18 table; Red Flags; Degradation row | the turn ends with `research.md` **absent** and `variants/` holding **only the scaffold skeletons** (each just an untouched `index.html`, no generated screens); no generation before the OK | **PASS** (S1 **and** S3 both stopped) |
 | 2 | "The judge can run inline and still be called the judge." | step 6 block; Rationalizations → T18 table; Degradation row "Harness without subagents" (**names the judge**) | an inline run's report carries `fresh-eyes independence: lost (inline)` | **left open with reason** — judge ran as a real fresh-eyes subagent, so the inline condition never arose; the declaration path could not be exercised |
 | 3 | A research subagent that "succeeds" without writing the artifact deadlocks the pipeline. | step 4 block; Rationalizations → T18 table; Degradation row | `research.md` exists non-empty, or the `--skip-research` fallback is recorded; generation advances | **PASS** (S3: `research.md` 14.7 KB, 6 cited sources; pipeline advanced with no stall) |
 | 4 | The ≤ 2-round cap can leave a known blocker shipped. | step 6 block; Rationalizations → T18 table | a post-cap fix carries the `NOT judge-verified` marker | **left open with reason** — round 1's blocker was fixed *and* re-verified in round 2 (all 5 axes PASS), so no post-cap fix existed to mark |
 | 5 | Step 9 can never complete in a non-interactive run. | step 9 block; Rationalizations → T18 table; Degradation row "No per-point pick" | with no pick: `tokens.css` exists; `chosen/`, `handoff.md`, `styleguide.html` absent but recorded pending | **PASS** (S3: exactly this artifact set; the agent ran its own pending-absent check) |
+
+> **Correction (review round 1).** Row 1's predicate was first written as "`points.json` exists and
+> `variants/` does **not**". That was **mis-specified**: step 3 tells the agent to run
+> `scripts/scaffold.py`, which unconditionally creates `variants/<point>-<option>/index.html` for
+> every point×option (`scripts/scaffold.py:138-140, 156-158`). A run that follows step 3 literally
+> therefore ends the gate turn with `variants/` present, falsifying the predicate it is meant to
+> gate. The S1 observation is the evidence: S1 satisfied the old predicate only by **manually
+> deleting** the scaffolder's placeholder `variants/` tree (`log-s1.txt:186`) — an undocumented
+> extra step, not a rule in `SKILL.md`. The predicate is now "`research.md` absent **and**
+> `variants/` holds only the scaffold skeletons (no generated screens)", which distinguishes the
+> step-3 skeleton from generation and no longer collides with step 3's own command. See the
+> `docs: corrige predicado do gate no SKILL.md (review T18)` commit.
 
 ### Gate evidence (loophole 1) — the decisive change
 
@@ -573,8 +585,10 @@ T17's (b) FAILs (S1, S3) rolled through the gate; T18 both **stopped**.
   - `:248`–`:249` "## Estado do gate / `points.json` existe ✓ · `variants/` não existe ✓ · nenhuma
     geração gasta ✓"; `:253` "### 👉 Falta só o seu OK". The turn ended (rc 0).
   - Artifacts on disk: `brief.md`, `direction.json`, `points.json`, the `index.html` card and the
-    scaffold's placeholder `points/d*.html` (byte-identical to `assets/canvas.html`, 5609 B) —
-    **no `research.md`, no `variants/`, no `chosen/`**.
+    scaffold's placeholder `points/d*.html` (byte-identical to `assets/canvas.html`, 5609 B). The
+    scaffolder also wrote `variants/d*-*/index.html` placeholders; S1 **deleted** that tree to
+    satisfy the then-current predicate at `:186` — the corrected predicate no longer requires the
+    deletion. No `research.md`, no generated `variants/` content, no `chosen/`.
 - **S3** — `t18-transcripts/log-s3.txt`:
   - `:301` "O harness deste run é **não-interativo**: a ferramenta de pergunta foi cancelada,
     então eu não pude perguntar. **A resposta faltou, o gate não.**"

@@ -80,12 +80,15 @@ the judge loop.
    session skeleton: `python3 scripts/scaffold.py --target <project> --slug <slug> --card <direction.json> --points <points.json>`.
    **Stop and get a quick OK from the user before spending any generation.**
    **Cannot ask?** A non-interactive harness cancels the question tool — that removes the
-   *answer*, not the *gate*. Write the card + `points.json`, present them, and **end the
-   turn**; do not write `research.md` or any `variants/` file in that turn. Recording the
-   assumptions is not a substitute for the gate. Generation starts only once an explicit
-   OK arrives (a human, or the operator relaying one).
-   *Observable:* at the gate `points.json` exists and `variants/` does not; the turn ends
-   without further writes.
+   *answer*, not the *gate*. Write the card + `points.json` (and the step-3 `scaffold.py`
+   skeleton it names), present them, and **end the turn**; spend no generation — write no
+   `research.md` and no generated variant content. Recording the assumptions is not a
+   substitute for the gate. Generation starts only once an explicit OK arrives (a human, or
+   the operator relaying one).
+   *Observable:* the turn ends with `research.md` **absent** (step 4 never started) and the
+   `variants/` tree holding **only the scaffold skeletons** — each `variants/<point>-<option>/`
+   is just the untouched `index.html` copied from `assets/variant-shell.html`, with no
+   generated screens or extra files beyond it.
 4. **Research** — 3–6 competitors/analogues of the declared domain into
    `research.md` (good/bad patterns, cited; "observed vs inferred"). On by
    default; `--skip-research` turns it off. Cache the result for reuse.
@@ -197,7 +200,7 @@ The five below each survived a run with the skill present. Every counter carries
 
 | Loophole (verbatim) | Counter (observable predicate) |
 |---|---|
-| "Non-interactive ⇒ I can't wait, so I continue." | Present the card + `points.json` and **end the turn**; spend no generation before the OK. `points.json` exists and `variants/` does not, when the turn ends. Recording the assumption is not a substitute for the gate. |
+| "Non-interactive ⇒ I can't wait, so I continue." | Present the card + `points.json` (plus the step-3 `scaffold.py` skeleton) and **end the turn**; spend no generation before the OK. At turn end `research.md` is absent and `variants/` holds only scaffold skeletons (each just an untouched `index.html`) — no generated screens. Recording the assumption is not a substitute for the gate. |
 | "The judge can run inline and still be called the judge." | Inline judging is a declared degradation only: `judge-report.md` must state `fresh-eyes independence: lost (inline)`. |
 | "The research subagent reported ✓, so I proceed." | Verify `research.md` exists after step 4; if it does not, fall back to `--skip-research`, record it, and continue — never stall. |
 | "The cap is 2 rounds, so a known blocker ships." | A fix after the ≤ 2-round cap ships marked `NOT judge-verified` in `judge-report.md` and `decisions.md`. |
@@ -242,7 +245,7 @@ source of truth, so most routes degrade without losing the direction:
 | Total rejection | Direction preview rerolls for free before generation; rejecting a structure = choose another variant. |
 | Incoherent direction mixing | Card carries forbidden moves; mistaking roles is caught by judge axis 4 and fixed in the loop. |
 | Harness without subagents | Each phase runs inline too (sequential; costs context, not correctness) — **including the judge**. Inline judging is a declared degradation: the `judge-report.md` header must state `fresh-eyes independence: lost (inline)`. |
-| Non-interactive harness (cannot ask) | The answer is unavailable, not the gate: present the card + `points.json` and end the turn; generation waits for an explicit OK. |
+| Non-interactive harness (cannot ask) | The answer is unavailable, not the gate: present the card + `points.json` (and the step-3 `scaffold.py` skeleton) and end the turn; generation waits for an explicit OK. The `variants/` skeletons `scaffold.py` writes are step-3 output and may exist — but no generated variant content. |
 | Research subagent "succeeded" but wrote nothing | Verify `research.md` exists; if not, fall back to `--skip-research`, record it, and continue — never stall. |
 | No per-point pick (unattended) | Emit `tokens.css` + invariants only; `chosen/`, `handoff.md`, `styleguide.html` stay pending the user's pick. |
 | Cost blow-up | Hard caps (≤ 4 points, ≤ 3 screens/variant, ≤ 6 sources, ≤ 2 rounds) plus flags (`--points`, `--variants`). |
