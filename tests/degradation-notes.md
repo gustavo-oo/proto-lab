@@ -70,23 +70,23 @@ Narrow `9.47` → Archivo Narrow really was in use); offline each stack lands
 exactly on its local fallback.
 
 **Before/after (screenshots, absolute paths, not committed).** All captured from
-`file://…/proto-lab-wt/t20/examples/coffee-log-cafe-com-leite/…` with the browser
-tool; the temp dir is outside the repo:
+`file:///private/var/folders/vl/8fqz68bx3ksb6nxg0nnnpw9w0000gn/T/opencode/proto-lab-wt/t20/examples/coffee-log-cafe-com-leite/`
+with the browser tool; the temp dir is outside the repo:
 
 - Online, `variants/d1-c/index.html` @1280×900 →
-  `/private/var/folders/vl/8fqz68bx3ksb6nxg0nnpw9w0000gn/T/opencode/proto-lab-t20-shots/s1-online-d1-c-1280.png`
+  `/private/var/folders/vl/8fqz68bx3ksb6nxg0nnnpw9w0000gn/T/opencode/proto-lab-t20-shots/s1-online-d1-c-1280.png`
 - Offline, same URL @1280×900 →
-  `…/proto-lab-t20-shots/s2-offline-d1-c-1280.png`
+  `/private/var/folders/vl/8fqz68bx3ksb6nxg0nnnpw9w0000gn/T/opencode/proto-lab-t20-shots/s2-offline-d1-c-1280.png`
 - Offline, same URL @390×844 →
-  `…/proto-lab-t20-shots/s3-offline-d1-c-390.png`
+  `/private/var/folders/vl/8fqz68bx3ksb6nxg0nnnpw9w0000gn/T/opencode/proto-lab-t20-shots/s3-offline-d1-c-390.png`
 - Online, same URL @390×844 →
-  `…/proto-lab-t20-shots/s4-online-d1-c-390.png`
+  `/private/var/folders/vl/8fqz68bx3ksb6nxg0nnnpw9w0000gn/T/opencode/proto-lab-t20-shots/s4-online-d1-c-390.png`
 - Offline, `styleguide.html` @1280×900 →
-  `…/proto-lab-t20-shots/s5-offline-styleguide-1280.png`
+  `/private/var/folders/vl/8fqz68bx3ksb6nxg0nnnpw9w0000gn/T/opencode/proto-lab-t20-shots/s5-offline-styleguide-1280.png`
 - Online, `styleguide.html` @1280×900 →
-  `…/proto-lab-t20-shots/s6-online-styleguide-1280.png`
+  `/private/var/folders/vl/8fqz68bx3ksb6nxg0nnnpw9w0000gn/T/opencode/proto-lab-t20-shots/s6-online-styleguide-1280.png`
 
-(Full prefix: `/private/var/folders/vl/8fqz68bx3ksb6nxg0nnpw9w0000gn/T/opencode/`.)
+(Full prefix: `/private/var/folders/vl/8fqz68bx3ksb6nxg0nnnpw9w0000gn/T/opencode/`.)
 
 What they show: `s1` vs `s2` (and `s4` vs `s3`) are the same page — same grid
 paper, same column alignment, same line-wrapping inside every entry (`cacau,
@@ -125,14 +125,14 @@ PWD=$(pwd) opencode run --standalone --auto \
 - **Scratch copy (R22)** — the committed example was never touched:
   `/private/var/folders/vl/8fqz68bx3ksb6nxg0nnnpw9w0000gn/T/opencode/proto-lab-t20-scratch/coffee-log-cafe-com-leite/`
   (a `cp -R` of `examples/coffee-log-cafe-com-leite/`).
-- **Prompt**: `…/proto-lab-t20-scratch/prompts/judge-degraded.txt` — it bundles the
+- **Prompt**: `/private/var/folders/vl/8fqz68bx3ksb6nxg0nnnpw9w0000gn/T/opencode/proto-lab-t20-scratch/prompts/judge-degraded.txt` — it bundles the
   skill (SKILL.md + `references/` + `scripts/` + `assets/` copied to
-  `…/proto-lab-t20-scratch/_skill/`), declares "this harness has NO browser tool",
+  `/private/var/folders/vl/8fqz68bx3ksb6nxg0nnnpw9w0000gn/T/opencode/proto-lab-t20-scratch/_skill/`), declares "this harness has NO browser tool",
   and asks for `judge-report.md` per `references/judge-rubric.md` §*Degraded mode*
   and §*Report template*, with only `judge-report.md` allowed to change.
-- **Report produced**: `…/proto-lab-t20-scratch/coffee-log-cafe-com-leite/judge-report.md`
+- **Report produced**: `/private/var/folders/vl/8fqz68bx3ksb6nxg0nnnpw9w0000gn/T/opencode/proto-lab-t20-scratch/coffee-log-cafe-com-leite/judge-report.md`
   (11 726 bytes, 46 lines, model `deepseek-v4.1-flash`); log at
-  `…/proto-lab-t20-scratch/logs/judge-degraded-run2.log` (exit `rc=0`).
+  `/private/var/folders/vl/8fqz68bx3ksb6nxg0nnnpw9w0000gn/T/opencode/proto-lab-t20-scratch/logs/judge-degraded-run2.log` (exit `rc=0`).
 
 **Result — the 5 axes are all present.**
 
@@ -162,7 +162,7 @@ the 3:1 non-text floor". That arithmetic checks out independently — computed
 here from the declared hexes: `#00E5FF` on `#F4F7FA` = **1.43:1** (on `#FFFFFF` =
 1.54:1), while `--ink-2` on white = 11.64:1. The clean second run did not raise
 it. Both reports are kept
-(`…/proto-lab-t20-scratch/originals/judge-degraded-run1.md`, and the run-2 report
+(`/private/var/folders/vl/8fqz68bx3ksb6nxg0nnnpw9w0000gn/T/opencode/proto-lab-t20-scratch/originals/judge-degraded-run1.md`, and the run-2 report
 at the path above); the route tested here — *the judge still produces
 `judge-report.md` with the five axes without a browser* — holds in both, but the
 verdicts and findings are run-dependent. T26/T27 should read them as two samples,
@@ -180,13 +180,14 @@ source of truth, so the Node mirror is a convenience, never a gate.
 only a `python3` symlink was used:
 
 ```
-PATH=/private/var/folders/vl/8fqz68bx3ksb6nxg0nnpw9w0000gn/T/opencode/proto-lab-t20-scratch/nonode-bin
+PATH=/private/var/folders/vl/8fqz68bx3ksb6nxg0nnnpw9w0000gn/T/opencode/proto-lab-t20-scratch/nonode-bin
 $ command -v node   →  FAILED, rc=1
 $ node scripts/roll.mjs --seed abc
   sh: node: command not found            rc=127
 ```
 
-(The normal developer PATH does have `node` at `…/.asdf/shims/node`, so the
+(The normal developer PATH does have `node` at
+`/Users/gustavo/.asdf/shims/node`, so the
 absence above is real, not an accident of the shell.)
 
 **Commands and output.** Three runs, all with `--seed abc`:
