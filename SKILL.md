@@ -79,9 +79,22 @@ the judge loop.
    structural options into `points.json` (contract: axis + options). Also create the
    session skeleton: `python3 scripts/scaffold.py --target <project> --slug <slug> --card <direction.json> --points <points.json>`.
    **Stop and get a quick OK from the user before spending any generation.**
+   **Cannot ask?** A non-interactive harness cancels the question tool — that removes the
+   *answer*, not the *gate*. Write the card + `points.json`, present them, and **end the
+   turn**; do not write `research.md` or any `variants/` file in that turn. Recording the
+   assumptions is not a substitute for the gate. Generation starts only once an explicit
+   OK arrives (a human, or the operator relaying one).
+   *Observable:* at the gate `points.json` exists and `variants/` does not; the turn ends
+   without further writes.
 4. **Research** — 3–6 competitors/analogues of the declared domain into
    `research.md` (good/bad patterns, cited; "observed vs inferred"). On by
    default; `--skip-research` turns it off. Cache the result for reuse.
+   **Artifact check:** after the fetch/subagent returns, confirm `research.md` exists and is
+   non-empty. If it does not (the subagent reported success but wrote nothing, or the fetch
+   failed), **fall back to `--skip-research`**, record the omission in the handoff, and
+   continue — never stall on a file that will not appear.
+   *Observable:* either `research.md` exists non-empty, or the run recorded the
+   `--skip-research` fallback; either way generation advances.
 5. **Generate** — One subagent **per decision point**, in parallel, each with the
    direction card, the point contract, the brief, `research.md` and the guardrails;
    each writes 3 structural variants (2–3 linked screens). You assemble the gallery
@@ -90,11 +103,25 @@ the judge loop.
    screenshots if a browser tool exists), writes findings with severity to
    `judge-report.md`. Blockers/majors → fix → re-judge, **≤ 2 rounds**. Nothing is
    presented until the report is PASS or the failures are stated openly.
+   **Inline judging** (no subagent available) is allowed only as an explicit, declared
+   degradation: the report header must state `fresh-eyes independence: lost (inline)` —
+   an inline self-review is never labelled a clean fresh-eyes judge.
+   **Cap reached with a known blocker:** a fix made after the ≤ 2 rounds still ships, but is
+   marked `NOT judge-verified` in `judge-report.md` and `decisions.md` — a post-cap fix is
+   never presented as judged.
+   *Observable:* an inline run's report carries the `fresh-eyes independence: lost (inline)`
+   line; any post-cap fix carries the `NOT judge-verified` marker.
 7. **Present** — Open `index.html` in the browser and summarise in chat: points,
    options, what the judge found. The user chooses per point.
 8. **Record** — `decisions.md`: chosen + rejected + why, including rerolled seeds.
 9. **Handoff** — `tokens.css` + `handoff.md` + `chosen/` + `styleguide.html`
    (static mini design system). Formats in `references/handoff-format.md`.
+   **No user pick?** An unattended run that could not get a per-point choice may legitimately
+   emit only `tokens.css` (the chosen direction's token scales) plus its invariants, and must
+   record `chosen/`, `handoff.md` and `styleguide.html` as **pending the user's pick** — never
+   invent a winner.
+   *Observable:* with no pick, `tokens.css` exists and `chosen/` + `handoff.md` +
+   `styleguide.html` are absent but recorded as pending.
 
 ### Caps (hard)
 
@@ -163,6 +190,19 @@ apply the counter — the phrase is the trigger, the counter is the rule.
 | "as 5 não são o mesmo layout repintado" | Producing distinct-looking options by luck is not the workflow: no seed, no reproducibility, no research, no judge, no handoff means it does not count. Run the pipeline so divergence is purposeful. |
 | "a direção sorteada não combina com meu domínio, vou usar a minha" | Do not improvise a direction. If `fits/fails` condemns the card, **reroll the seed** (free, at step 2) — never author a direction outside the catalogue. |
 
+### Loopholes that survived the first GREEN run (T18)
+
+The five below each survived a run with the skill present. Every counter carries an
+**observable predicate** — a file, a marker or a turn boundary you can check.
+
+| Loophole (verbatim) | Counter (observable predicate) |
+|---|---|
+| "Non-interactive ⇒ I can't wait, so I continue." | Present the card + `points.json` and **end the turn**; spend no generation before the OK. `points.json` exists and `variants/` does not, when the turn ends. Recording the assumption is not a substitute for the gate. |
+| "The judge can run inline and still be called the judge." | Inline judging is a declared degradation only: `judge-report.md` must state `fresh-eyes independence: lost (inline)`. |
+| "The research subagent reported ✓, so I proceed." | Verify `research.md` exists after step 4; if it does not, fall back to `--skip-research`, record it, and continue — never stall. |
+| "The cap is 2 rounds, so a known blocker ships." | A fix after the ≤ 2-round cap ships marked `NOT judge-verified` in `judge-report.md` and `decisions.md`. |
+| "Step 9 can't complete unattended, so skip it." | Unattended + no pick may emit only `tokens.css` + invariants; `chosen/`, `handoff.md`, `styleguide.html` stay absent and are recorded as pending the user's pick. |
+
 ## Red Flags
 
 Stop and correct course if you catch yourself thinking or saying:
@@ -180,6 +220,12 @@ Stop and correct course if you catch yourself thinking or saying:
   when the caps do the work; cut *scope* (`--points`, `--variants`), not *steps*.
 - "5 points, 4 variants, 5 judge rounds." — Caps are hard: ≤ 4 points, 3 variants,
   ≤ 2 rounds.
+- "It's non-interactive, so the gate doesn't apply." — The gate still applies: present and
+  **stop**; only the answer is missing, not the rule.
+- "I'll judge it myself — same thing." — Only as a declared degradation, and the report must
+  say fresh-eyes independence was lost.
+- "The research said ✓, so I'll wait for the file." — Check the artifact; if it is missing,
+  `--skip-research` and continue.
 
 ## Degradation
 
@@ -195,6 +241,9 @@ source of truth, so most routes degrade without losing the direction:
 | Ambiguous brief | Minimal intake schema; ≤ 3 questions only for load-bearing fields; the step-3 gate confirms before generation. Reroll after the gate. |
 | Total rejection | Direction preview rerolls for free before generation; rejecting a structure = choose another variant. |
 | Incoherent direction mixing | Card carries forbidden moves; mistaking roles is caught by judge axis 4 and fixed in the loop. |
-| Harness without subagents | Each phase runs inline too (sequential; costs context, not correctness). |
+| Harness without subagents | Each phase runs inline too (sequential; costs context, not correctness) — **including the judge**. Inline judging is a declared degradation: the `judge-report.md` header must state `fresh-eyes independence: lost (inline)`. |
+| Non-interactive harness (cannot ask) | The answer is unavailable, not the gate: present the card + `points.json` and end the turn; generation waits for an explicit OK. |
+| Research subagent "succeeded" but wrote nothing | Verify `research.md` exists; if not, fall back to `--skip-research`, record it, and continue — never stall. |
+| No per-point pick (unattended) | Emit `tokens.css` + invariants only; `chosen/`, `handoff.md`, `styleguide.html` stay pending the user's pick. |
 | Cost blow-up | Hard caps (≤ 4 points, ≤ 3 screens/variant, ≤ 6 sources, ≤ 2 rounds) plus flags (`--points`, `--variants`). |
 | Contamination by the target repo | Never read the target's code/UI for design; "followed the existing theme" is a declared red flag. |

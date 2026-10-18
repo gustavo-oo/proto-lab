@@ -523,3 +523,97 @@ Shared GREEN signature: **seed fixed and shown before generation; research, vari
 mechanical scan and the judge all ran; failures reported instead of hidden.** The one RED habit the
 skill did *not* fully kill is the **step-3 gate** — it holds when the agent chooses to stop (S2)
 and evaporates when it decides the harness "can't" ask (S1, S3).
+
+---
+
+## REFACTOR (T18) — loopholes closed and re-run
+
+Captured **2026-10-17** on branch `feat/proto-lab-v0.1.0`. T17 recorded five surviving loopholes
+(the GREEN section's items 1–5; item 6 is explicitly *not* a loophole — ruling R20). T18 added an
+explicit counter with an **observable predicate** to `SKILL.md` for each, then re-ran the affected
+scenarios to see whether the counters hold.
+
+### Method (R17/R21)
+
+- **Install mode: R17 fallback** — `proto-lab` is still not in the harness skills dir, so each
+  fresh session was told, as its **first action**, to read the **updated** `_skill/SKILL.md` in
+  full (see the T17 GREEN note; nothing was written to the user's global config).
+- **Scratch (R18): new disposable dir** — `…/opencode/proto-lab-scratch-t18/{s1,s3}` with the
+  updated bundle at `…/proto-lab-scratch-t18/_skill/`. The T17 GREEN originals were left untouched.
+- **Scope (R21):** S1 **and** S3 for the step-3 gate; S3 carried on (after an operator-relayed OK
+  at the gate — the message a human would send) for the judge/cap loopholes.
+- **Prompts:** verbatim T17 scenario prompts (S1, S3), checked equal to this file's
+  `**Prompt (verbatim):**` lines by script; only the R17 preamble was prepended.
+- **Raw transcripts:** `.superpowers/sdd/2026-10-17-proto-lab/t18-transcripts/` —
+  `log-s1.txt`, `log-s3.txt`, `resume-s3.log` (+ method `setup.sh`, `run_one_t18.sh`,
+  `resume_t18.sh`). Live scratch: `/private/var/folders/…/opencode/proto-lab-scratch-t18/`.
+- **Environment:** the provider was **stable** this round (no `ECONNRESET` / stream timeouts);
+  and unlike T17 the judge dispatched as a **fresh-eyes subagent** (4 generator subagents + 2
+  judge rounds all returned). JeV was still down (`429 rate limit exceeded`) in every session, and
+  every agent **reported** it instead of faking a self-check.
+
+### Per-loophole: counter → observable predicate → re-run result
+
+| # | Loophole (T17 input) | Counter lives in `SKILL.md` | Observable predicate | Re-run result |
+|---|---|---|---|---|
+| 1 | "Non-interactive ⇒ I can't wait, so I continue." | step 3 block; Rationalizations → T18 table; Red Flags; Degradation row | `points.json` exists and `variants/` does not when the turn ends; no generation before the OK | **PASS** (S1 **and** S3 both stopped) |
+| 2 | "The judge can run inline and still be called the judge." | step 6 block; Rationalizations → T18 table; Degradation row "Harness without subagents" (**names the judge**) | an inline run's report carries `fresh-eyes independence: lost (inline)` | **left open with reason** — judge ran as a real fresh-eyes subagent, so the inline condition never arose; the declaration path could not be exercised |
+| 3 | A research subagent that "succeeds" without writing the artifact deadlocks the pipeline. | step 4 block; Rationalizations → T18 table; Degradation row | `research.md` exists non-empty, or the `--skip-research` fallback is recorded; generation advances | **PASS** (S3: `research.md` 14.7 KB, 6 cited sources; pipeline advanced with no stall) |
+| 4 | The ≤ 2-round cap can leave a known blocker shipped. | step 6 block; Rationalizations → T18 table | a post-cap fix carries the `NOT judge-verified` marker | **left open with reason** — round 1's blocker was fixed *and* re-verified in round 2 (all 5 axes PASS), so no post-cap fix existed to mark |
+| 5 | Step 9 can never complete in a non-interactive run. | step 9 block; Rationalizations → T18 table; Degradation row "No per-point pick" | with no pick: `tokens.css` exists; `chosen/`, `handoff.md`, `styleguide.html` absent but recorded pending | **PASS** (S3: exactly this artifact set; the agent ran its own pending-absent check) |
+
+### Gate evidence (loophole 1) — the decisive change
+
+T17's (b) FAILs (S1, S3) rolled through the gate; T18 both **stopped**.
+
+- **S1** — `t18-transcripts/log-s1.txt`:
+  - `:186` "Now matching the documented gate state exactly: the scaffolder created empty
+    placeholder shells under `variants/` (pre-generation skeleton). The skill's gate observable is
+    *\"`points.json` exists and `variants/` does not\"* — so I remove the empty placeholder tree".
+  - `:248`–`:249` "## Estado do gate / `points.json` existe ✓ · `variants/` não existe ✓ · nenhuma
+    geração gasta ✓"; `:253` "### 👉 Falta só o seu OK". The turn ended (rc 0).
+  - Artifacts on disk: `brief.md`, `direction.json`, `points.json`, the `index.html` card and the
+    scaffold's placeholder `points/d*.html` (byte-identical to `assets/canvas.html`, 5609 B) —
+    **no `research.md`, no `variants/`, no `chosen/`**.
+- **S3** — `t18-transcripts/log-s3.txt`:
+  - `:301` "O harness deste run é **não-interativo**: a ferramenta de pergunta foi cancelada,
+    então eu não pude perguntar. **A resposta faltou, o gate não.**"
+  - `:265` "## Etapa 3 — o gate (preciso do seu OK antes de gerar)"; `points.json` = 4 points × 3
+    options, all `status: pending`, `chosen: null`. The turn ended (rc 0) with **no `research.md`
+    and no `variants/`**.
+- The operator then relayed the OK a user would send; S3 resumed (`resume-s3.log`).
+
+### Judge / research / handoff evidence (loopholes 2–5)
+
+- **Loophole 2** — `resume-s3.log:242` "✓ Judge round 1 · General Agent"; `:316` "✓ Judge round 2 ·
+  General Agent". `judge-report.md` header: `round: 2`, `mode: full`, 5 named axes, all **PASS**;
+  `judge-report-round1.md` preserves round 1. The judge was **not** inline, so no `fresh-eyes
+  independence: lost` line was required — the rule was not contradicted, but its trigger never
+  fired, hence *left open with reason*.
+- **Loophole 3** — `research.md` (14 770 B, 6 cited sources, "observed vs inferred" marked);
+  generation ran 4 subagents (one per point) right after — no stall.
+- **Loophole 4** — the only blocker (round 1: `d4-a`'s 447 px sticky summary occluding the mobile
+  form) was fixed and **re-verified** in round 2, which closed all five axes with 0 blocker / 0
+  major / 7 minor. With the work cleared inside the cap there was no post-cap fix, so the
+  `NOT judge-verified` path was not needed.
+- **Loophole 5** — `decisions.md:13`–`:17` records `chosen/`, `handoff.md`, `styleguide.html` as
+  **"pendente da escolha do usuário"** (absent) and `tokens.css` as the only emitted handoff
+  artifact. The agent also re-ran the check itself (`resume-s3.log:388`): `absent (pending pick):
+  chosen / handoff.md / styleguide.html`.
+
+### REFACTOR summary (T18)
+
+| # | Loophole | Result |
+|---|---|---|
+| 1 | non-interactive ⇒ skip the gate | **PASS** (S1, S3 stop at the gate) |
+| 2 | inline judge silently counts as the judge | left open with reason (condition not reached; judge was fresh-eyes) |
+| 3 | research subagent "succeeds" without the artifact | **PASS** (`research.md` present, pipeline advanced) |
+| 4 | 2-round cap ships a known blocker unmarked | left open with reason (blocker cleared inside the cap; no post-cap fix) |
+| 5 | step 9 can't complete unattended | **PASS** (`tokens.css` only; rest explicitly pending the pick) |
+
+NET: the **decisive** T17 regression (the step-3 gate) is closed — both re-runs that previously
+FAILed now **honour** the gate (present and stop, no generation before the OK). Loopholes 2 and 4
+could not be exercised in this run because the favourable branch was taken (fresh-eyes judge; a
+blocker cleared inside the cap), not because the counters failed; their rules are in `SKILL.md`
+with observable predicates.
+
