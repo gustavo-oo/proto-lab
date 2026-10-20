@@ -17,3 +17,10 @@ is better for `gate_checklist_pass`, `structural_divergence`,
 `judge_axes_pass`, `artifacts_complete`, `research_sources`, `file_nav_ok`,
 `distinct_directions`; lower is better for `slop_hits`, `fix_rounds`,
 `html_bytes_total`.
+
+Since `s04` spans three fixed seeds (three runs), its fixture values are the
+**aggregated worst run per metric** — `min` for higher-is-better, `max` for
+lower-is-better, `AND` for `file_nav_ok` — with `distinct_directions` as the
+cross-run count (`rubric.md` §"Multi-run scenarios — the aggregation rule").
+`html_bytes_total` is therefore the largest of the three sessions
+(39,400 / 38,100), not a sum of three runs.

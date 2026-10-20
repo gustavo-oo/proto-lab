@@ -45,3 +45,10 @@ luck, not the skill.
   "borrows" the previous direction's layout is a fail.
 - The variant sets differ structurally (not just in color) even where the
   direction family is shared (`structural_divergence` ≥ 2 per run).
+- **The summary slot reports the worst run per metric** — `min` for
+  higher-is-better, `max` for lower-is-better, `AND` for `file_nav_ok` — so
+  the scenario's scalars describe its weakest run and one strong run cannot
+  hide one weak run. `distinct_directions` is the exception: it is the count
+  of distinct ids across the three runs. Per-seed detail (metrics, direction,
+  family) stays in `benchmarks/results/<version>/s04/`, not in the summary
+  slot (`rubric.md` §"Multi-run scenarios — the aggregation rule").

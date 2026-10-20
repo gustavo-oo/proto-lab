@@ -105,6 +105,18 @@ def parse_rows(output):
     return rows
 
 
+def rubric_section(heading_pattern):
+    """Return the ``##`` section of rubric.md whose heading matches.
+
+    ``heading_pattern`` is a regex fragment appended after ``## ``; the section
+    runs until the next ``## `` heading (or end of file). Empty string when the
+    heading is missing, so the caller's assertion carries the failure.
+    """
+    text = RUBRIC.read_text(encoding="utf-8")
+    match = re.search(r"(?ms)^## %s.*?(?=^## |\Z)" % heading_pattern, text)
+    return match.group(0) if match else ""
+
+
 class CompareDeltaTest(unittest.TestCase):
     """(a) correct deltas and (b) a ⚠ on the worsened metric only."""
 
@@ -327,6 +339,51 @@ class SuiteDefinitionTest(unittest.TestCase):
         self.assertEqual(
             items, [chr(ord("a") + i) for i in range(12)], rubric[:200]
         )
+
+    def test_rubric_defines_slop_hits_as_a_max_per_page_metric(self):
+        """Review T24 R29: the unit is the worst page, never a session sum."""
+        section = rubric_section(r"`slop_hits`")
+        self.assertTrue(section, "rubric.md is missing the slop_hits section")
+        self.assertIn("maximum per-page", section)
+        self.assertIn("not a session total", section)
+        self.assertIn("slop_hits = max(hits(file)", section)
+
+    def test_rubric_defines_the_multi_run_aggregation_rule(self):
+        """Review T24 R29: one slot per scenario x metric needs one rule.
+
+        The rule is derived from the comparator's own direction table: min for
+        higher-is-better, max for lower-is-better, AND for booleans, with
+        distinct_directions as the documented cross-run exception.
+        """
+        section = rubric_section("Multi-run")
+        self.assertTrue(section, "rubric.md is missing the aggregation section")
+        documented = dict(
+            re.findall(
+                r"^\| `([a-z_]+)` \| \*\*(min|max|AND|distinct count)\*\*",
+                section,
+                re.MULTILINE,
+            )
+        )
+        expected = {}
+        for name, spec in compare.METRICS.items():
+            if name == "distinct_directions":
+                expected[name] = "distinct count"
+            elif spec["type"] == "bool":
+                expected[name] = "AND"
+            elif spec["direction"] == "higher_is_better":
+                expected[name] = "min"
+            else:
+                expected[name] = "max"
+        self.assertEqual(documented, expected)
+
+    def test_protocol_documents_the_slop_unit_and_the_aggregation(self):
+        readme = (ROOT / "benchmarks" / "README.md").read_text(encoding="utf-8")
+        self.assertIn("worst page", readme)
+        self.assertIn("worst run per metric", readme)
+        scenario = (
+            SUITE_DIR / "scenarios" / "s04-seed-divergence.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("worst run", scenario)
 
 
 if __name__ == "__main__":

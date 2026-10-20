@@ -41,5 +41,6 @@ nice page, no direction, no options.
   axis (gate item (c), `structural_divergence` ≥ 2).
 - `research.md` cites 3–6 movie/product dashboards with URLs and
   observed-vs-inferred (`research_sources`).
-- `check_slop.py` exits 0 (`slop_hits` ≤ 3).
+- `check_slop.py` exits 0 on every page (`slop_hits` ≤ 3, measured on the
+  worst page).
 - `judge-report.md`: five axes + `## Open (not fixed)` (`judge_axes_pass`).

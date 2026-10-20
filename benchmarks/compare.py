@@ -13,6 +13,13 @@ ritual (``benchmarks/README.md``)::
       summary.json   {"suite_version": "v1", "scenarios": {<id>: {<metric>: value}}}
       summary.md     human-readable table + "## Changes since previous"
 
+Values in ``summary.json`` are already aggregated per ``rubric.md``: a
+multi-run scenario (s04, three fixed seeds) fills its single slot with the
+**worst run per metric** (min for higher-is-better, max for lower-is-better,
+AND for booleans), except ``distinct_directions``, which is the cross-run
+distinct count. Per-run detail lives in the scenario evidence directory, not
+in the summary slot.
+
 The comparator prints, for every scenario x metric that exists in either
 snapshot, the values in A and B, the numeric delta (B - A) and a verdict:
 

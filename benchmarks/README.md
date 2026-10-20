@@ -27,6 +27,7 @@ benchmarks/
   results/<version>/         one directory per measured skill version
     env.json                 version, commit, suite_version, model, harness, date
     summary.json             {"suite_version", "scenarios": {id: {metric: value}}}
+                             (multi-run scenarios: the worst run per metric)
     summary.md               readable table + "## Changes since previous"
     <scenario>/               evidence: direction.json, judge-report.md,
                              slop.txt, nav.md, gate.md, screenshots (cited)
@@ -62,13 +63,28 @@ benchmark. A benchmark that rerolls measures luck, not the skill. If a fixed
 seed is condemned by the catalogue's `fits/fails` filter, that is a **finding
 to record** (`summary.md`), not a reason to change the suite.
 
+### Multi-run scenarios — the aggregation rule
+
+s04 declares **three** seeds, i.e. three runs, but `summary.json` has **one
+slot per scenario × metric**. Every such slot holds the **worst run per
+metric**: `min` for higher-is-better, `max` for lower-is-better, logical
+`AND` for booleans (`file_nav_ok`). The single exception is
+`distinct_directions`, which is the **distinct count** across the run set
+(1–3). Full table in `rubric.md` §"Multi-run scenarios — the aggregation rule".
+
+So s04's scalars describe its **weakest run** (except `distinct_directions`):
+a strong run cannot hide a weak one. Per-run detail — each seed's metrics, its
+`direction.json`, the distinctness note — lives in
+`benchmarks/results/<version>/s04/`, never in the summary slot. Changing the
+rule is changing the instrument: bump `suite_version`.
+
 ## Metrics (full definitions in `rubric.md`)
 
 | metric | type | better | meaning |
 |---|---|---|---|
 | `gate_checklist_pass` | 0–1 | higher | the 12 pipeline items (a)–(l), verified/partial/absent |
 | `structural_divergence` | 0–3 | higher | variants diverge structurally, not cosmetically |
-| `slop_hits` | int | lower | `check_slop.py` fingerprint count (≥ 4 = reprova) |
+| `slop_hits` | int | lower | `check_slop.py` fingerprints in the **worst page** (max per page; ≥ 4 = reprova) |
 | `judge_axes_pass` | 0–5 | higher | judge axes PASS in the final report |
 | `fix_rounds` | 0–2 | lower | corrective rounds after the judge (defect-repair cost) |
 | `artifacts_complete` | 0–1 | higher | expected artifacts present |
@@ -94,6 +110,9 @@ item.
    - run the pipeline through the handoff (s03 may defer the pick-dependent
      trio, recorded as pending);
    - score with `rubric.md` using a fresh auditor, cite evidence per scenario;
+   - for a multi-run scenario (s04), keep the three per-seed records in
+     `results/<version>/s04/` and write the **aggregated worst run** into the
+     scenario's `summary.json` slot (rule above and in `rubric.md`);
    - fill `env.json` (`version`, `commit` = `git rev-parse HEAD`,
      `suite_version`, `model`, `harness`, `date`), `summary.json` and
      `summary.md`.
