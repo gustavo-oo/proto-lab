@@ -37,6 +37,7 @@ COMPARE = ROOT / "benchmarks" / "compare.py"
 SUITE_DIR = ROOT / "benchmarks" / "suite"
 SUITE_JSON = SUITE_DIR / "suite.json"
 RUBRIC = SUITE_DIR / "rubric.md"
+SCANNER = ROOT / "scripts" / "check_slop.py"
 FIXTURES = ROOT / "tests" / "fixtures" / "bench"
 
 sys.path.insert(0, str(ROOT / "benchmarks"))
@@ -341,12 +342,21 @@ class SuiteDefinitionTest(unittest.TestCase):
         )
 
     def test_rubric_defines_slop_hits_as_a_max_per_page_metric(self):
-        """Review T24 R29: the unit is the worst page, never a session sum."""
+        """Review T24 R29 + round 2: the unit is the worst page, never a sum.
+
+        A multi-path CLI call concatenates hits into one count, so the evidence
+        protocol must be a per-file loop and the metric the max of the per-file
+        counts. The removed "tree run" shortcut must not come back.
+        """
         section = rubric_section(r"`slop_hits`")
         self.assertTrue(section, "rubric.md is missing the slop_hits section")
         self.assertIn("maximum per-page", section)
         self.assertIn("not a session total", section)
-        self.assertIn("slop_hits = max(hits(file)", section)
+        self.assertIn("slop_hits = max(count(file)", section)
+        self.assertIn("find <session dir> -name '*.html' -print0", section)
+        self.assertIn("while IFS= read -r -d '' f; do", section)
+        self.assertIn('python3 scripts/check_slop.py "$f"', section)
+        self.assertNotIn("tree run", section)
 
     def test_rubric_defines_the_multi_run_aggregation_rule(self):
         """Review T24 R29: one slot per scenario x metric needs one rule.
@@ -384,6 +394,44 @@ class SuiteDefinitionTest(unittest.TestCase):
             SUITE_DIR / "scenarios" / "s04-seed-divergence.md"
         ).read_text(encoding="utf-8")
         self.assertIn("worst run", scenario)
+
+    def test_slop_scan_per_file_differs_from_one_multi_path_call(self):
+        """Review T24 round 2: a multi-path call sums pages and can fail a passing set.
+
+        Each page here carries 3 hits (under the per-page threshold), so the
+        per-file loop yields ``slop_hits = 3`` and every invocation exits 0.
+        One call over both paths returns ``count`` 6 and exits 1 -- which is
+        why the rubric cannot prescribe a single invocation over the tree.
+        """
+        fixture = ROOT / "tests" / "fixtures" / "slop" / "boundary_three.html"
+        with tempfile.TemporaryDirectory() as tmp:
+            pages = []
+            for name in ("page-a.html", "page-b.html"):
+                dest = Path(tmp) / name
+                shutil.copyfile(fixture, dest)
+                pages.append(dest)
+
+            per_file = []
+            for page in pages:
+                run = subprocess.run(
+                    [sys.executable, str(SCANNER), str(page)],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                self.assertEqual(run.returncode, 0, run.stderr)
+                per_file.append(json.loads(run.stdout)["count"])
+            self.assertEqual(per_file, [3, 3])
+            self.assertLess(max(per_file), 4)
+
+            combined = subprocess.run(
+                [sys.executable, str(SCANNER), *map(str, pages)],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertEqual(combined.returncode, 1)
+            self.assertEqual(json.loads(combined.stdout)["count"], 6)
 
 
 if __name__ == "__main__":

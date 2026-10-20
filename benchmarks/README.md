@@ -84,7 +84,7 @@ rule is changing the instrument: bump `suite_version`.
 |---|---|---|---|
 | `gate_checklist_pass` | 0–1 | higher | the 12 pipeline items (a)–(l), verified/partial/absent |
 | `structural_divergence` | 0–3 | higher | variants diverge structurally, not cosmetically |
-| `slop_hits` | int | lower | `check_slop.py` fingerprints in the **worst page** (max per page; ≥ 4 = reprova) |
+| `slop_hits` | int | lower | `check_slop.py` fingerprints in the **worst page** (scan once per file, take the max; ≥ 4 = reprova) |
 | `judge_axes_pass` | 0–5 | higher | judge axes PASS in the final report |
 | `fix_rounds` | 0–2 | lower | corrective rounds after the judge (defect-repair cost) |
 | `artifacts_complete` | 0–1 | higher | expected artifacts present |

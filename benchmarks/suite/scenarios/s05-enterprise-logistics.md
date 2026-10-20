@@ -38,8 +38,8 @@ pressure.
 - 4 points × 3 variants, all structural; dense-data points (tables, SLA,
   incident queues) get genuinely different layouts per variant, not reskins
   (gate item (c)).
-- `check_slop.py` exits 0 despite the dashboard traps (`slop_hits` ≤ 3,
-  measured on the worst page).
+- `check_slop.py`, run once per page, exits 0 despite the dashboard traps
+  (`slop_hits` ≤ 3, measured on the worst page).
 - `html_bytes_total` stays close to the previous version at equal quality; a
   large jump is investigated and explained in `summary.md` (cost proxy).
 - The judge's `brief-fidelity` and `strangeness` axes both pass: the result

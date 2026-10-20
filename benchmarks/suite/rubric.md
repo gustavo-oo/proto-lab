@@ -39,7 +39,7 @@ scored run. Each item names the observable that decides it.
 | (b) | The points gate was awaited — no generation before an explicit OK | `points.json` exists before `research.md`; a non-interactive run ends its turn with `research.md` absent and `variants/` holding only untouched scaffold skeletons |
 | (c) | Structural variants per point (3; 2 only with `--variants 2`), not cosmetic | every point in `points/` has the configured number of variants whose skeletons differ on the declared axis (judge axis 5 agrees) |
 | (d) | Research cited: URLs + observed vs inferred | `research.md` has 3–6 sources, each with a URL and an `observed`/`inferred` marker (or the `--skip-research` fallback is recorded in `decisions.md`/handoff) |
-| (e) | `check_slop.py` exits 0 | the scanner command and exit code are in the evidence; exit 0 = **every scanned page** is under 4 hits (the scanner is per-page) |
+| (e) | `check_slop.py` exits 0 **once per page** | one scanner invocation per generated `.html`, each with its exit code, is in the evidence; every invocation exits 0 = every page is under 4 hits (see `slop_hits`). A single multi-path call does not satisfy this item, because it sums the pages into one verdict |
 | (f) | `judge-report.md` has the 5 axes **and** `## Open (not fixed)` | all five axes present with PASS/FAIL + evidence; provenance line present (`fresh-eyes …` or `fresh-eyes independence: lost (inline)`); `## Open (not fixed)` section present, even if empty ("none") |
 | (g) | Evidence of the correction loop (≥1 fix applied, or "no blocker found") | `judge-report.md` round 2 (or an explicit "no blocker found" statement) + the changed artifact; a post-cap fix carries `NOT judge-verified` |
 | (h) | `decisions.md` complete | chosen + rejected per point, with reasons, and every rerolled seed recorded |
@@ -75,27 +75,38 @@ scored run. Each item names the observable that decides it.
 - **Type:** int, **range:** 0+, **direction:** lower is better.
 - **Unit:** fingerprints **in the single worst page** — not a session total and
   not a count of pages.
-- **Definition:** run `python3 scripts/check_slop.py` over **every generated
+- **Definition:** run `python3 scripts/check_slop.py` **once per generated
   `.html`** in the session (`index.html`, `points/*.html`,
-  `variants/**/*.html`, `chosen/**/*.html`, `styleguide.html`) and take the
-  **maximum per-page hit count**:
+  `variants/**/*.html`, `chosen/**/*.html`, `styleguide.html`), read the
+  `count` of each invocation, and take the **maximum per-page hit count**:
 
   ```
-  slop_hits = max(hits(file) for file in <every generated .html>)
+  find <session dir> -name '*.html' -print0 |
+  while IFS= read -r -d '' f; do
+    python3 scripts/check_slop.py "$f"
+  done
+
+  # slop_hits = max(count(file) for file in <every generated .html>)
   ```
 
-  `check_slop.py` is a per-page scanner: it counts the fingerprints inside one
-  file and exits 1 iff **that file** has ≥ 4 hits. The metric keeps that unit,
-  so `0` = no page carries a fingerprint and `3` = the worst page is one hit
-  short of failing. This is deliberately **not a session total**: summing the
-  pages would make the score a function of session size (twelve pages with one
-  hit each would read as 12 and "fail" while the skill's gate passes) and gate
-  item (e) would contradict the metric.
-- **Gate link:** gate item (e) is `verified` iff `check_slop.py` exits 0 on
-  every page, i.e. iff `slop_hits < 4`. A reproved run therefore shows
+  `check_slop.py` is a single-page scanner: one invocation counts the
+  fingerprints inside one file and exits 1 iff **that file** has ≥ 4 hits. A
+  multi-path call is not a per-page scan — it concatenates the hits of every
+  path into one summed `count` and one verdict, with no per-file attribution
+  (so four one-hit pages could exit 1 even though no page reaches 4). The loop
+  is therefore mandatory, and each per-file `count` is the evidence. The
+  metric keeps the per-page unit, so `0` = no page carries a fingerprint and
+  `3` = the worst page is one hit short of failing. This is deliberately **not
+  a session total**: summing the pages would make the score a function of
+  session size (twelve pages with one hit each would read as 12 and "fail"
+  while the skill's gate passes) and gate item (e) would contradict the
+  metric.
+- **Gate link:** gate item (e) is `verified` iff **every** per-file invocation
+  exits 0, i.e. iff `slop_hits < 4`. A reproved run therefore shows
   `slop_hits ≥ 4` **and** item (e) `absent`; the two can never disagree.
-- **Evidence:** one line per scanned file with its hit count and exit code (or
-  a tree run plus the per-file counts) in the evidence dir.
+- **Evidence:** one line per scanned file with its `count` and exit code, plus
+  the computed `slop_hits = max(...)` line, in the evidence dir. Do not record
+  a multi-path invocation as evidence: its summed `count` is not the metric.
 
 ## `judge_axes_pass`
 
