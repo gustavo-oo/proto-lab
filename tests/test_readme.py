@@ -3,8 +3,7 @@
 The README is the open-source entry door (T22): what the skill is, how to
 install it, what it costs, how the pipeline works and what it requires. It is
 also the only place that points a reader at the sibling documents produced
-by neighboring tasks -- ``CHANGELOG.md`` ("what changed between versions"),
-``benchmarks/README.md`` ("how each version performed vs. the previous") and
+by neighboring tasks -- ``CHANGELOG.md`` ("what changed between versions") and
 ``docs/roadmap.md`` ("what is still open").
 
 Pins:
@@ -19,10 +18,10 @@ Pins:
   ``docs/research/landscape.md`` (§5) rather than hardcoded here;
 - the "early, name provisional" status line.
 
-**R28 (binding):** ``CHANGELOG.md`` and ``benchmarks/README.md`` are cited in
-*prose only*. They are produced by parallel tasks and do not exist on this
-branch, so this test must not existence-check them -- doing so would break the
-branch and create a cross-batch dependency the plan explicitly avoids.
+**R28 (binding):** ``CHANGELOG.md`` is cited in *prose only*. It was produced by
+a parallel task, so this test must not existence-check it -- doing so would
+create a cross-batch dependency the plan explicitly avoids. (The sibling
+``benchmarks/README.md`` reference was removed with the harness in 0.2.0.)
 
 These tests fail while the README is missing and pass once it exists with the
 required shape.
@@ -52,10 +51,10 @@ REQUIRED_SECTIONS = (
 EXISTENCE_CHECKED_PATHS = ("examples",)
 
 # Cited in prose only -- see R28 in the module docstring. No existence check.
-PROSE_ONLY_REFERENCES = ("CHANGELOG.md", "benchmarks/README.md")
+PROSE_ONLY_REFERENCES = ("CHANGELOG.md",)
 
-# T27 step 4: the README must point at the open-gap roadmap. Unlike the two R28
-# references above, docs/roadmap.md exists on this branch; the pointer is still
+# T27 step 4: the README must point at the open-gap roadmap. Unlike the R28
+# reference above, docs/roadmap.md exists on this branch; the pointer is still
 # asserted as prose, not existence-checked.
 ROADMAP_POINTER = "docs/roadmap.md"
 

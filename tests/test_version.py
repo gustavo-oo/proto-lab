@@ -1,10 +1,9 @@
 """Version and changelog checks for the proto-lab skill.
 
-``VERSION`` is the machine-readable release marker that benchmark runs record
-(T24/T25) and ``CHANGELOG.md`` is the human-readable source of the "what
-changed" story between releases. These assertions pin the shape both consumers
-depend on: a single semver line and a Keep a Changelog document whose newest
-heading matches the shipped version.
+``VERSION`` is the machine-readable release marker and ``CHANGELOG.md`` is the
+human-readable source of the "what changed" story between releases. These
+assertions pin the shape both consumers depend on: a single semver line and a
+Keep a Changelog document whose newest heading matches the shipped version.
 """
 
 import re
@@ -15,8 +14,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
 
-EXPECTED_VERSION = "0.1.1"
-EXPECTED_CHANGELOG_HEADING = "## [0.1.1] - 2026-10-28"
+EXPECTED_VERSION = "0.2.0"
+EXPECTED_CHANGELOG_HEADING = "## [0.2.0] - 2026-10-28"
 
 
 class VersionTest(unittest.TestCase):
@@ -49,14 +48,14 @@ class VersionTest(unittest.TestCase):
         self.assertIn("### Added", changelog_text)
         self.assertIn("### Changed", changelog_text)
 
-        # T27: the corrective release must carry its own ### Fixed section,
-        # not inherit the headings of an older version.
+        # 0.2.0 removed the benchmark harness, so the current release carries
+        # its own ### Removed section rather than inheriting older headings.
         current = changelog_text.split(EXPECTED_CHANGELOG_HEADING, 1)[1]
         current = current.split("\n## ", 1)[0]
         self.assertIn(
-            "### Fixed",
+            "### Removed",
             current,
-            "%s must carry a ### Fixed section" % EXPECTED_CHANGELOG_HEADING,
+            "%s must carry a ### Removed section" % EXPECTED_CHANGELOG_HEADING,
         )
 
     def test_version_matches_changelog_heading(self):

@@ -1,19 +1,14 @@
 # Roadmap — what is fixed, what is open, what is not covered
 
-File references are to `SKILL.md` at v0.1.1; line numbers are indicative.
+File references are to `SKILL.md` at v0.2.0; line numbers are indicative.
 
-**Current version: 0.1.1** (`VERSION`, `CHANGELOG.md`). The corrective release
-tightens the skill guidance (domain-filter vocabulary, cap message, reroll offer,
-per-page slop, skill-relative commands), the scaffolder's overwrite rule, the
-judge report provenance, the `README.md` pointer and the version/changelog/test
-constants.
-
-**No benchmark baseline exists.** T25 (the v0.1.0 benchmark run) was **cut by
-user directive**, so `benchmarks/results/` is absent and no v0.1.1 result may be
-invented. The harness is ready for the next release: suite v1, fixed seeds and
-`benchmarks/compare.py` (`benchmarks/README.md`). The first measured version
-must record `benchmarks/results/<version>/` and paste the real `compare.py`
-output into its `summary.md`; until then there is no "how it changed" claim.
+**Current version: 0.2.0** (`VERSION`, `CHANGELOG.md`). The 0.1.1 corrective
+release tightened the skill guidance (domain-filter vocabulary, cap message,
+reroll offer, per-page slop, skill-relative commands), the scaffolder's overwrite
+rule, the judge report provenance, the `README.md` pointer and the
+version/changelog/test constants. 0.2.0 removes the benchmark harness: measuring
+every version cost more tokens than it returned, and no baseline was ever
+recorded.
 
 This file is the single place where a finding from the adversarial hunt (T27,
 `docs/reviews/2026-10-17-adversarial.md`) lands. Nothing is dropped silently:
@@ -29,7 +24,7 @@ Each entry names the retest that was actually run for this release.
 | 1 | **Domain filter vocabulary.** Step 2 now states that `--domain` matches the catalogue's literal `fails` tags (case-insensitive substring), that tag-shaped text is required (prose/other languages prune nothing), and that `filters.excluded` must be read back and the card rerolled if the catalogue entry's `fails` still condemn it. | `SKILL.md` (step 2) | `tests.test_skill_md :: test_required_literals_are_present` asserts **literal `fails` tags**, **filters.excluded** and the **catalogue entry's `fails`** phrase; 14 tests OK, full suite 183 OK |
 | 2 | **Cap message.** A request beyond a cap is now capped and stated in one line (`6 points requested → 4 (cap)`); cutting scope stays allowed, cutting a step does not. | `SKILL.md` (Caps) | `tests.test_skill_md :: test_required_literals_are_present` asserts **6 points requested → 4 (cap)**; full suite 183 OK |
 | 3 | **Reroll offer made observable in the card message.** Step 2 now requires an explicit actionable line ("reroll is free — say the word"), not just an internal option — the T26 item (a) miss. | `SKILL.md` (step 2) | `tests.test_skill_md :: test_required_literals_are_present` asserts **reroll is free — say the word**; full suite 183 OK |
-| 4 | **README points at this roadmap** (the step-4 requirement) as the third sibling document next to `CHANGELOG.md` and `benchmarks/README.md`. | `README.md` | `tests.test_readme :: test_prose_only_references_are_cited_not_checked` asserts **docs/roadmap.md**; 10 tests OK, full suite 183 OK |
+| 4 | **README points at this roadmap** (the step-4 requirement) as the sibling document next to `CHANGELOG.md`. | `README.md` | `tests.test_readme :: test_prose_only_references_are_cited_not_checked` asserts **docs/roadmap.md**; 10 tests OK, full suite 183 OK |
 | 5 | **Corrective version 0.1.1** with a `### Fixed` changelog entry; the version test constants follow the shipped version. | `VERSION`, `CHANGELOG.md`, `tests/test_version.py` | `tests.test_version :: test_changelog_follows_keep_a_changelog` asserts **### Fixed** inside the `[0.1.1]` section; 3 tests OK, full suite 183 OK |
 
 Behaviour retests for the fixes from the review (not new suite tests):
@@ -51,12 +46,11 @@ Behaviour retests for the fixes from the review (not new suite tests):
 | 3 | Minor | A research omission is recorded in the handoff but not required in the chat presentation; a user reading only the chat may miss that research was skipped. | `SKILL.md:103-104, 177, 215, 226, 259` — "record the omission in the handoff"; no presentation rule. | Require one line in the step-7 summary ("research: off — fallback recorded"). | `SKILL.md` (step 4/7) |
 | 4 | Minor | The `NOT judge-verified` marker does not have to travel into `handoff.md`, so the implementation session can read the handoff and never see it. | `SKILL.md:118-122` requires it in `judge-report.md` and `decisions.md`; `references/handoff-format.md` has no field for it. | Add a mandatory "judge status" line to the handoff template (carry every marker). | `references/handoff-format.md` |
 | 5 | Minor | The reroll offer is now required by wording but still not mechanically observable (it lives in the chat, not an artifact). | T26 item (a) `final-use-case.md:37`; a card message is not part of the session tree. | Add "card message must contain the reroll line" to the review checklist / scenario scoring (not a file artifact). | `tests/scenarios.md`, T26 checklist |
-| 6 | **Major (process)** | No benchmark baseline for v0.1.0 and no measured v0.1.1; version-to-version comparability is unproven in practice. | T25 cut by user directive; `benchmarks/results/` does not exist; this task must not fabricate one. | Run suite v1 with a fresh executor per scenario at the next version, store `benchmarks/results/<version>/` and paste real `compare.py` output. | `benchmarks/README.md` protocol, next release |
-| 7 | Minor | Install/discovery by a real harness was never exercised; T26 used a copied bundle. | `2026-10-17-final-use-case.md:107-110, 140-144`. | Copy the folder into `~/.config/opencode/skills/` and run one fixed scenario; record discovery in the next review. | next acceptance review |
-| 8 | Minor | Canvas frames are 1280px in a padded scroll deck: the right edge needs horizontal scroll at a 1440px window, and "abrir" opens a new tab instead of the same tab. | T26 item (j), observations 1–2 (`final-use-case.md:46`). | Scale frames via CSS clamp/transform to the deck width; offer same-tab open. | `assets/canvas.html` |
-| 9 | Minor | Direction DNA can be deviated without escalation: T26 shipped 2–4px radii where D19 asks for 6–10px, logged as a minor and left open. | `2026-10-17-final-use-case.md:45, 137-139`. | Make a declared-DNA deviation a major on axis 4, or require it to be recorded in the handoff as an accepted deviation. | `references/judge-rubric.md` |
-| 10 | Minor | Research depth: six text-only sources at the cap, spot-checked, no screenshots. | `2026-10-17-final-use-case.md:117-118, 145-146`. | Require screenshot/UI evidence per source when a browser tool exists; mark text-only runs as degraded. | `references/research-protocol.md` |
-| 11 | Minor (deliberate) | The gallery keeps its neutral chrome and does not apply the direction card's tokens (`--accent`/`--font-text`/`--font-mono`); an inverted direction can show a cream gallery beside a dark variant set. | `assets/gallery.html` (template comment), `scripts/scaffold.py` `render_index`, `examples/coffee-log-cafe-com-leite/judge-report.md` open findings. | Either inject the card tokens in `render_index` (and test the palette/font mapping) or keep the neutral register documented as deliberate; the current template documents the choice. | T12/T14 |
+| 6 | Minor | Install/discovery by a real harness was never exercised; T26 used a copied bundle. | `2026-10-17-final-use-case.md:107-110, 140-144`. | Copy the folder into `~/.config/opencode/skills/` and run one fixed scenario; record discovery in the next review. | next acceptance review |
+| 7 | Minor | Canvas frames are 1280px in a padded scroll deck: the right edge needs horizontal scroll at a 1440px window, and "abrir" opens a new tab instead of the same tab. | T26 item (j), observations 1–2 (`final-use-case.md:46`). | Scale frames via CSS clamp/transform to the deck width; offer same-tab open. | `assets/canvas.html` |
+| 8 | Minor | Direction DNA can be deviated without escalation: T26 shipped 2–4px radii where D19 asks for 6–10px, logged as a minor and left open. | `2026-10-17-final-use-case.md:45, 137-139`. | Make a declared-DNA deviation a major on axis 4, or require it to be recorded in the handoff as an accepted deviation. | `references/judge-rubric.md` |
+| 9 | Minor | Research depth: six text-only sources at the cap, spot-checked, no screenshots. | `2026-10-17-final-use-case.md:117-118, 145-146`. | Require screenshot/UI evidence per source when a browser tool exists; mark text-only runs as degraded. | `references/research-protocol.md` |
+| 10 | Minor (deliberate) | The gallery keeps its neutral chrome and does not apply the direction card's tokens (`--accent`/`--font-text`/`--font-mono`); an inverted direction can show a cream gallery beside a dark variant set. | `assets/gallery.html` (template comment), `scripts/scaffold.py` `render_index`, `examples/coffee-log-cafe-com-leite/judge-report.md` open findings. | Either inject the card tokens in `render_index` (and test the palette/font mapping) or keep the neutral register documented as deliberate; the current template documents the choice. | T12/T14 |
 
 ## Not contemplated
 

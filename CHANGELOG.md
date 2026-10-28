@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-28
+
+### Removed
+
+- The benchmark harness is gone: `benchmarks/` (suite v1, metrics rubric,
+  `compare.py`), its fabricated fixtures (`tests/fixtures/bench/`) and
+  `tests/test_compare.py`. Measuring every release cost more tokens than it
+  returned, and no baseline was ever recorded. `CHANGELOG.md` remains the
+  "what changed" record and `docs/roadmap.md` the open-gap record.
+- The benchmark scenario examples (`benchmarks/suite/scenarios/`). Example
+  sessions are created only when the user asks for them.
+
+### Changed
+
+- `README.md` no longer points at `benchmarks/README.md`; `tests/test_readme.py`
+  and `tests/test_version.py` drop the benchmark references, and the roadmap
+  loses the baseline gap.
+
 ## [0.1.1] - 2026-10-28
 
 Corrective release from the T27 adversarial hunt and the final whole-branch
