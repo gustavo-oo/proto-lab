@@ -7,9 +7,10 @@ recording and handoff. Two classes of failure are pinned here:
 * **Trigger discipline** — the frontmatter ``description`` must state *when* to
   fire and must not summarise the workflow, or an agent can shortcut straight
   from the description and skip the body (the T02 baseline failure).
-* **Mechanical surface** — the pipeline caps, the flag names and the verbatim
-  baseline rationalizations the skill has to defeat must appear literally, and
-  every ``references/*.md`` / ``scripts/*.py`` path it points at must exist.
+* **Mechanical surface** — the pipeline caps, the flag names, the v0.1.1
+  domain-filter/reroll/cap guards and the verbatim baseline rationalizations the
+  skill has to defeat must appear literally, and every ``references/*.md`` /
+  ``scripts/*.py`` path it points at must exist.
 
 These tests fail while ``SKILL.md`` is missing and pass once it exists with the
 required shape.
@@ -46,6 +47,17 @@ REQUIRED_LITERALS = (
     "≤ 4",
     "≤ 3",
     "≤ 6",
+)
+
+# The v0.1.1 corrective guards (T27). Each literal must be present verbatim:
+# on the pre-fix SKILL.md every one of these assertions fails, so the retest
+# pins the fix rather than the old wording around it.
+T27_GUARD_LITERALS = (
+    "**literal `fails` tags**",
+    "filters.excluded",
+    "catalogue entry's `fails`",
+    "reroll is free — say the word",
+    "6 points requested → 4 (cap)",
 )
 
 # The round cap is allowed in either language (D10: repo docs in English,
@@ -141,7 +153,8 @@ class SkillMdTest(unittest.TestCase):
         )
 
     def test_required_literals_are_present(self):
-        missing = [lit for lit in REQUIRED_LITERALS if lit not in self.text]
+        required = REQUIRED_LITERALS + T27_GUARD_LITERALS
+        missing = [lit for lit in required if lit not in self.text]
         self.assertEqual(
             missing,
             [],

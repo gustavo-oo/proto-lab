@@ -49,6 +49,16 @@ class VersionTest(unittest.TestCase):
         self.assertIn("### Added", changelog_text)
         self.assertIn("### Changed", changelog_text)
 
+        # T27: the corrective release must carry its own ### Fixed section,
+        # not inherit the headings of an older version.
+        current = changelog_text.split(EXPECTED_CHANGELOG_HEADING, 1)[1]
+        current = current.split("\n## ", 1)[0]
+        self.assertIn(
+            "### Fixed",
+            current,
+            "%s must carry a ### Fixed section" % EXPECTED_CHANGELOG_HEADING,
+        )
+
     def test_version_matches_changelog_heading(self):
         version_text = (REPO_ROOT / "VERSION").read_text(encoding="utf-8")
         changelog_text = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")

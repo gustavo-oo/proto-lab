@@ -80,7 +80,7 @@ the judge loop.
    `--domain` matches the catalogue's **literal `fails` tags** (case-insensitive
    substring), so pass tag-shaped text (`--domain "dense tables hotel dashboard"`), not a
    prose sentence or another language, or nothing is pruned. Read `filters.excluded` back
-   and reroll if the drawn card's own `fails` still condemn it.
+   and reroll if the catalogue entry's `fails` still condemn it.
 3. **Points** *(the single gate)* — Derive decision points and their named
    structural options into `points.json` (contract: axis + options). Also create the
    session skeleton: `python3 scripts/scaffold.py --target <project> --slug <slug> --card <direction.json> --points <points.json>`.

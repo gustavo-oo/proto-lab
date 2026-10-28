@@ -2,9 +2,10 @@
 
 The README is the open-source entry door (T22): what the skill is, how to
 install it, what it costs, how the pipeline works and what it requires. It is
-also the only place that points a reader at the two sibling documents produced
-by neighboring tasks -- ``CHANGELOG.md`` ("what changed between versions") and
-``benchmarks/README.md`` ("how each version performed vs. the previous").
+also the only place that points a reader at the sibling documents produced
+by neighboring tasks -- ``CHANGELOG.md`` ("what changed between versions"),
+``benchmarks/README.md`` ("how each version performed vs. the previous") and
+``docs/roadmap.md`` ("what is still open").
 
 Pins:
 
@@ -12,6 +13,7 @@ Pins:
   ``## Cost model``, ``## How it works``, ``## Requirements``);
 - the ``examples/`` pointer AND the existence of that one path -- it is the
   **only** path this test existence-checks;
+- the ``docs/roadmap.md`` pointer (T27 step 4), asserted in prose only;
 - the zero-dependency claim and the "does not follow the target's stack" rule;
 - the homogenization papers' arXiv ids, read from
   ``docs/research/landscape.md`` (§5) rather than hardcoded here;
@@ -51,6 +53,11 @@ EXISTENCE_CHECKED_PATHS = ("examples",)
 
 # Cited in prose only -- see R28 in the module docstring. No existence check.
 PROSE_ONLY_REFERENCES = ("CHANGELOG.md", "benchmarks/README.md")
+
+# T27 step 4: the README must point at the open-gap roadmap. Unlike the two R28
+# references above, docs/roadmap.md exists on this branch; the pointer is still
+# asserted as prose, not existence-checked.
+ROADMAP_POINTER = "docs/roadmap.md"
 
 # The homogenization section of the prior-art survey; its arXiv ids must show up
 # in the README (they are the empirical reason the skill forces divergence).
@@ -99,6 +106,12 @@ class ReadmeDocTest(unittest.TestCase):
             # Deliberately no os.path check: these do not exist on this branch
             # (R28). Assert the intent rather than the file.
             self.assertNotIn(ref, EXISTENCE_CHECKED_PATHS)
+
+        self.assertIn(
+            ROADMAP_POINTER,
+            self.text,
+            "README must point at %s" % ROADMAP_POINTER,
+        )
 
     def test_is_zero_dependency(self):
         normalized = self.lower.replace("-", " ")

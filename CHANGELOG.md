@@ -17,8 +17,8 @@ the README points at the open-gap roadmap.
 
 - Domain filter vocabulary: `--domain` matches only the catalogue's literal
   `fails` tags, so the skill now requires tag-shaped domain text, reading
-  `filters.excluded` back and rerolling a card whose own `fails` still condemn
-  it (a prose or pt-BR domain silently pruned nothing).
+  `filters.excluded` back and rerolling a card whose catalogue entry's `fails`
+  still condemn it (a prose or pt-BR domain silently pruned nothing).
 - Cap overflow: a request beyond ≤ 4 points / ≤ 3 variants is capped and stated
   in one line instead of being silently expanded.
 - The free reroll must be offered as an explicit line in the card message

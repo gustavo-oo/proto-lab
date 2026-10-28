@@ -4,14 +4,15 @@
 - **Repo:** `proto-lab`, branch `feat/proto-lab-v0.1.0`, HEAD `2816ff3` (before this task's commit)
 - **Task:** T27 — nine adversarial scenarios against the shipped skill, then a
   roadmap with every finding placed (fixed now / open / not contemplated).
-- **Method:** the cheap scenarios were **executed for real** (C, G, H, and the
-  cap probe for I); A, B, D, E, F were **read** in `SKILL.md`, with line
-  citations. No full pipeline was run (T25 was cut by user directive; running a
-  fresh executor per scenario is out of budget). Nothing below claims a run that
-  did not happen.
-- **Verdict counts:** 8 scenarios end in PASS (A, B, D, E, F, G, H, and C's
-  mechanism), 1 executed FAIL fixed in docs (I), 1 executed PARTIAL fixed in
-  docs (C as experienced).
+- **Method:** the cheap scenarios were **executed for real** (C, H and the cap
+  probe for I); G was executed **through the mechanical scan only** (no render,
+  no judge); A, B, D, E, F were **read** in `SKILL.md`, with line citations. No
+  full pipeline was run (T25 was cut by user directive; running a fresh executor
+  per scenario is out of budget). Nothing below claims a run that did not happen.
+- **Verdict counts:** 7 scenarios end in PASS (A, B, D, E, F, H, and C's
+  mechanism), G is **PASS (partial — scan only; render/judge not run)**, 1
+  executed FAIL fixed in docs (I), 1 executed PARTIAL fixed in docs (C as
+  experienced).
 
 ## What was run vs read
 
@@ -23,7 +24,7 @@
 | D | User rejects everything | read | PASS (with a new gap) |
 | E | Research returns 0 useful sources | read | PASS (with a minor gap) |
 | F | Blocker persists after 2 rounds | read | PASS |
-| G | Non-English copy with accents | **executed** | PASS |
+| G | Non-English copy with accents | **executed (scan) + read (judge); render por-verificar** | PASS (partial) |
 | H | `--wild` + `--variants 2` | **executed** | PASS (with a new gap) |
 | I | More than 4 points requested | **executed** (cap probe) | FAIL → fixed (docs) |
 
@@ -124,7 +125,7 @@ do nothing, with provenance that looks applied).
 
 **Fixed now:** `SKILL.md` step 2 now states the literal-tag rule, requires
 tag-shaped `--domain` text and requires reading `filters.excluded` back / rerolling
-when the card's own `fails` still condemn it. Retest: `tests/test_skill_md.py`
+when the catalogue entry's `fails` still condemn it. Retest: `tests/test_skill_md.py`
 PASS, full suite 183 OK. Residual (script has no normalization) stays open in the
 roadmap.
 
@@ -199,15 +200,20 @@ exit=0                                        # locale does not change the verdi
 The page carried `Ação`, `João Conceição`, `Observação`, `orçamento`, `“Elite
 Carbon”` and `14h`. Neither UTF-8 copy nor the C locale produced a hit.
 
+**What was not run.** No render and no judge: `check_slop.py` is a text scanner,
+and the judge side is only a reading of `references/judge-rubric.md`, not a judge
+run on the page. Accented copy is therefore verified only against the mechanical
+scan; its rendering and judging remain **por-verificar**.
+
 **Judge side (reading).** `references/judge-rubric.md:40-70` scores five axes
 against the artifact, with no language or encoding assumption; copy is judged
 for readability and fidelity to the brief, so accented pt-BR is ordinary copy,
 not a special case. The repo-language rule is separate and already verified
 (`SKILL.md:44-46, 160`; T26 item l).
 
-**Verdict: PASS.** **Severity:** none. Coverage caveat: no fixture pins
-non-ASCII copy, so a future fingerprint regex could false-positive silently
-(roadmap, "Not contemplated").
+**Verdict: PASS (partial).** **Severity:** none for the scan; the visual/copy
+claim is unverified. Coverage caveat: no fixture pins non-ASCII copy, so a future
+fingerprint regex could false-positive silently (roadmap, "Not contemplated").
 
 ---
 
@@ -296,7 +302,7 @@ observability remains open (the card message is chat, not an artifact).
 | D rejection | covered pre-generation | PASS; post-generation path new |
 | E zero research | covered | PASS; chat warning minor gap |
 | F blocker cap | covered | PASS |
-| G accents | untested | PASS |
+| G accents | untested | PASS (partial: scan only; render/judge not run) |
 | H wild + 2 | untested | PASS; wild provenance new |
 | I > 4 points | cap not enforced | FAIL → docs fixed, script gap open |
 
