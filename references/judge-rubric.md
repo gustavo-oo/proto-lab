@@ -163,8 +163,10 @@ The judge is a gate, not an editor.
    juiz`** counted as judge rounds.
 4. **minor** findings and residual uncertainty are never silently dropped: they
    are written to `## Open (not fixed)` so the user sees exactly what was left.
-5. If blockers survive the cap, stop and **escalate to the human** rather than
-   looping again.
+5. If blockers survive the cap, **stop looping** and present the deliverable
+   with the open failures listed under `## Open (not fixed)`; every fix made
+   after the cap is marked `NOT judge-verified`. Escalate the open failures to
+   the human — never loop again and never present a post-cap fix as judged.
 
 ## Degraded mode
 
@@ -193,6 +195,8 @@ placeholders, delete nothing structural — the table header and the
 # Judge report — <slug>
 - round: <1|2>
 - mode: full | degraded (code-first, no browser tool)
+- fresh-eyes independence: full | lost (inline)
+- judge status: judged | NOT judge-verified (post-cap fix)
 
 | axis | verdict | evidence |
 | ---- | ------- | -------- |

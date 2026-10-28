@@ -9,12 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.1] - 2026-10-28
 
-Corrective release from the T27 adversarial hunt. No generated artifact changes:
-the pipeline guidance is tighter where a guard could silently do nothing, and
+Corrective release from the T27 adversarial hunt and the final whole-branch
+review. No pipeline output changes shape: the guidance is tighter where a guard
+could silently do nothing, the scaffolder stops overwriting captured input, and
 the README points at the open-gap roadmap.
 
 ### Fixed
 
+- Scaffolder: `brief.md` gets the `# Brief` header only when absent, and no
+  existing scaffolded file is rewritten — step 1's captured brief survives
+  step 3, and a started artifact is never clobbered by a rerun.
+- Slop scan is documented as **one invocation per generated page**; a
+  multi-path call sums hits and is not a per-page verdict (the example report
+  now records the per-file counts).
+- Pipeline commands are relative to the skill directory, and
+  `scaffold.py --target` is documented as `<project>/prototypes` (the parent),
+  with a copy-pasteable roll → scaffold sequence.
+- `--wild` is documented as experimental/not wired (it only records the flag);
+  the gallery drops the token-injection promise and keeps deliberate neutral
+  chrome. The example's `lang` attributes are `pt-BR`.
+- Judge rubric: the cap now stops the loop and presents the open failures with
+  `NOT judge-verified`; the report template carries the `fresh-eyes
+  independence` and `judge status` provenance lines.
 - Domain filter vocabulary: `--domain` matches only the catalogue's literal
   `fails` tags, so the skill now requires tag-shaped domain text, reading
   `filters.excluded` back and rerolling a card whose catalogue entry's `fails`

@@ -1,10 +1,12 @@
 # Roadmap — what is fixed, what is open, what is not covered
 
-Line references are to `SKILL.md` at v0.1.1.
+File references are to `SKILL.md` at v0.1.1; line numbers are indicative.
 
 **Current version: 0.1.1** (`VERSION`, `CHANGELOG.md`). The corrective release
-only changes `SKILL.md` wording (domain-filter vocabulary, cap message, explicit
-reroll offer), the `README.md` pointer and the version/changelog/test constants.
+tightens the skill guidance (domain-filter vocabulary, cap message, reroll offer,
+per-page slop, skill-relative commands), the scaffolder's overwrite rule, the
+judge report provenance, the `README.md` pointer and the version/changelog/test
+constants.
 
 **No benchmark baseline exists.** T25 (the v0.1.0 benchmark run) was **cut by
 user directive**, so `benchmarks/results/` is absent and no v0.1.1 result may be
@@ -54,6 +56,7 @@ Behaviour retests for the fixes from the review (not new suite tests):
 | 8 | Minor | Canvas frames are 1280px in a padded scroll deck: the right edge needs horizontal scroll at a 1440px window, and "abrir" opens a new tab instead of the same tab. | T26 item (j), observations 1–2 (`final-use-case.md:46`). | Scale frames via CSS clamp/transform to the deck width; offer same-tab open. | `assets/canvas.html` |
 | 9 | Minor | Direction DNA can be deviated without escalation: T26 shipped 2–4px radii where D19 asks for 6–10px, logged as a minor and left open. | `2026-10-17-final-use-case.md:45, 137-139`. | Make a declared-DNA deviation a major on axis 4, or require it to be recorded in the handoff as an accepted deviation. | `references/judge-rubric.md` |
 | 10 | Minor | Research depth: six text-only sources at the cap, spot-checked, no screenshots. | `2026-10-17-final-use-case.md:117-118, 145-146`. | Require screenshot/UI evidence per source when a browser tool exists; mark text-only runs as degraded. | `references/research-protocol.md` |
+| 11 | Minor (deliberate) | The gallery keeps its neutral chrome and does not apply the direction card's tokens (`--accent`/`--font-text`/`--font-mono`); an inverted direction can show a cream gallery beside a dark variant set. | `assets/gallery.html` (template comment), `scripts/scaffold.py` `render_index`, `examples/coffee-log-cafe-com-leite/judge-report.md` open findings. | Either inject the card tokens in `render_index` (and test the palette/font mapping) or keep the neutral register documented as deliberate; the current template documents the choice. | T12/T14 |
 
 ## Not contemplated
 
@@ -61,7 +64,7 @@ Failure modes the hunt found that no current rule or test covers.
 
 | # | Severity | Failure mode | Evidence | Suggested fix | Owner |
 |---|---|---|---|---|---|
-| 1 | **Major** | **`--wild` has no per-variant direction artifact.** `direction.json` is singular and is the source of truth, but wild means each variant rolls its own direction. Nothing says where the other two cards live, so a wild run is not reproducible from the session tree. | H probe: `direction.json` has `wild: true` and one direction (D13) while four variant dirs exist; `SKILL.md:180` states the behaviour but names no artifact. | Specify `direction.json` as a list/an array of per-variant cards for wild runs (or `variants/<id>/**/direction.json`), and make the canvas read them. | `SKILL.md` (step 5), `references/seed-algorithm.md`, `assets/variant-shell.html` |
+| 1 | **Major** | **`--wild` has no per-variant direction artifact.** `direction.json` is singular and is the source of truth, but per-variant directions are not implemented: `roll.py`/`roll.mjs` only record `wild: true`, and the flag is now documented as experimental/not-wired in `SKILL.md` and `README.md`. A wild run is still not reproducible from the session tree because no other cards exist. | H probe: `direction.json` has `wild: true` and one direction (D13) while four variant dirs exist; `scripts/roll.py:157` records the flag verbatim. | Specify `direction.json` as a list/an array of per-variant cards for wild runs (or `variants/<id>/**/direction.json`), implement the per-variant draws, and make the canvas read them. Until then the docs must not promise the behaviour. | `scripts/roll.py`, `scripts/roll.mjs`, `SKILL.md` (step 5), `assets/variant-shell.html` |
 | 2 | Minor | **Total rejection after generation has no cheap path.** The rules price rerolling only *before* generation; a "reject everything" after presentation silently costs a full regeneration, and there is no recorded policy for what to keep. | `SKILL.md:255` ("rerolls for free before generation"); `SKILL.md:76-78`; nothing covers post-presentation rejection. | Add a degradation row: on total rejection, reroll the seed and reuse `brief.md` + research; record in `decisions.md` what was discarded. | `SKILL.md` (Degradation) |
 | 3 | Minor | **`--variants 2` can be silently ignored.** The number of variants is the number of options in the hand-authored `points.json`; the flag binds to no tool, so an executor can author three options under `--variants 2` (or two under the default) with no error. | `scaffold.py --help` (no flag); H probe authored two options by hand, not because a tool enforced it. | Validate options count in `scaffold.py` and/or have `points.json` carry the requested count; make the mismatch an error. | `scripts/scaffold.py`, `SKILL.md` (Flags) |
 | 4 | Minor | **Non-ASCII copy has no pinned regression.** Accented pt-BR passes the **mechanical scan** today, but rendering and judging of accented copy were not run (G: scan only), and no fixture protects the scan; a future fingerprint regex or an encoding default could false-positive without any test noticing. | G probe: pt-BR page with accents and curly quotes → `count: 0`, exit 0, also under `LC_ALL=C`; no render, no judge. | Add a non-ASCII pass fixture (and a would-be-hit variant) to `tests/fixtures/slop/`. | `tests/test_check_slop.py`, `tests/fixtures/slop/` |

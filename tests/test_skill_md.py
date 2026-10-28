@@ -220,6 +220,24 @@ class SkillMdTest(unittest.TestCase):
             "no degradation section for the §8 fallback paths",
         )
 
+    def test_slop_scan_is_documented_per_page(self):
+        # A multi-path call sums the hits; using it as a per-page verdict can
+        # fail a set whose individual pages all pass (the T26/S1 miss).
+        self.assertIn("once per generated `.html`", self.text)
+        self.assertIn("sums", self.text)
+        self.assertIn("per-page verdict", self.text)
+
+    def test_commands_are_skill_relative_and_target_the_parent(self):
+        # The executor's cwd is the target project after installation; script
+        # paths are relative to the skill folder, and scaffold --target is the
+        # parent (prototypes/), never the project root.
+        self.assertIn("this skill's directory", self.text)
+        self.assertIn("--target <project>/prototypes", self.text)
+        self.assertIn("$PROJECT/prototypes", self.text)
+
+    def test_wild_is_documented_as_not_wired(self):
+        self.assertIn("experimental, not wired", self.text)
+
 
 if __name__ == "__main__":
     unittest.main()

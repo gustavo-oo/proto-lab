@@ -200,6 +200,15 @@ class FileUrlSafetyTest(TemplateTest):
                 )
 
 
+class GalleryRegisterTest(TemplateTest):
+    def test_gallery_documents_its_neutral_chrome_not_token_injection(self):
+        # The template is display-only and the scaffolder substitutes no card
+        # tokens; promising otherwise misdescribes the rendered gallery.
+        html = self.read(GALLERY)
+        self.assertIn("Deliberate neutral chrome", html)
+        self.assertNotIn("card overrides --accent", html)
+
+
 class CanvasFramesTest(TemplateTest):
     def test_canvas_shows_three_frames_labelled_a_b_c(self):
         html = self.read(CANVAS)

@@ -45,6 +45,15 @@ REQUIRED_SECTIONS = (
 TABLE_HEADER = "| axis | verdict | evidence |"
 OPEN_SECTION = "## Open (not fixed)"
 
+# Provenance the T16 contract requires in the report header: an inline judge
+# must declare lost independence, and a post-cap fix must carry its marker.
+TEMPLATE_PROVENANCE = (
+    "fresh-eyes independence:",
+    "lost (inline)",
+    "judge status:",
+    "NOT judge-verified",
+)
+
 CODE_BLOCK_RE = re.compile(r"```[a-zA-Z0-9_-]*[ \t]*\r?\n(.*?)```", re.DOTALL)
 
 
@@ -113,6 +122,22 @@ class JudgeRubricDocTest(unittest.TestCase):
             [],
             "report template is missing axis rows: %s" % ", ".join(missing),
         )
+
+    def test_report_template_carries_provenance_lines(self):
+        block = self._report_template_block()
+        missing = [item for item in TEMPLATE_PROVENANCE if item not in block]
+        self.assertEqual(
+            missing,
+            [],
+            "report template is missing provenance: %s" % ", ".join(missing),
+        )
+
+    def test_loop_stops_and_presents_with_the_open_marker(self):
+        # Aligned with SKILL.md step 6: stop looping at the cap, present with
+        # the open failures, and mark every post-cap fix NOT judge-verified.
+        self.assertIn("stop looping", self.text)
+        self.assertIn("present the deliverable", self.text)
+        self.assertIn("NOT judge-verified", self.text)
 
 
 if __name__ == "__main__":

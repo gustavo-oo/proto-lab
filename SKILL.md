@@ -69,21 +69,39 @@ the judge loop.
    (agent-browser/Playwright)? subagents? Choose the rich path (script + browser)
    or the degraded one (see **Degradation**).
 1. **Brief** — Capture product, audience, goal, key screens, constraints into
-   `brief.md`. Ask **at most 3 questions**, only for load-bearing fields. Pick a
-   seed (random short string, or explicit `--seed`).
-2. **Roll** — `python3 scripts/roll.py --seed <seed> [--domain <domain>] [--out ...] [--catalog ...]`
+   `"$WORK/brief.md"` (the work dir is set below). Ask **at most 3 questions**, only
+   for load-bearing fields. Pick a seed (random short string, or explicit `--seed`).
+   Paths below are relative to **this skill's directory** (`<skill-dir>`); commands
+   run from the target project.
+2. **Roll** — write the card to a known path:
+   `python3 "$SKILL_DIR/scripts/roll.py" --seed "$SEED" --out "$WORK/direction.json" [--domain <domain>] [--catalog <catalog>]`
    (Node mirror: `scripts/roll.mjs`, same flags; API `roll.roll(seed, domain=None, wild=False)`).
    Shows a compact card preview in chat. Rerolling here is free — nothing has been
    generated yet — so the card message must say so as an explicit line the user can act
    on ("reroll is free — say the word"), not only perform it silently. `--wild` is off by
-   default.
+   default and **experimental, not wired**: it only records `wild: true` in the card;
+   every variant still uses that one card's direction (see `docs/roadmap.md`).
    `--domain` matches the catalogue's **literal `fails` tags** (case-insensitive
    substring), so pass tag-shaped text (`--domain "dense tables hotel dashboard"`), not a
    prose sentence or another language, or nothing is pruned. Read `filters.excluded` back
    and reroll if the catalogue entry's `fails` still condemn it.
 3. **Points** *(the single gate)* — Derive decision points and their named
-   structural options into `points.json` (contract: axis + options). Also create the
-   session skeleton: `python3 scripts/scaffold.py --target <project> --slug <slug> --card <direction.json> --points <points.json>`.
+   structural options into `"$WORK/points.json"` (contract: axis + options). Then create
+   the session skeleton with `--target <project>/prototypes` — the scaffolder's target is
+   the **parent**, so the session lands at `<project>/prototypes/<slug>-<seed>/`:
+
+   ```bash
+   SKILL_DIR=/path/to/proto-lab   # the installed skill folder
+   PROJECT=/path/to/project       # target project
+   SLUG=task-inbox; SEED=cafe-com-leite
+   WORK="${TMPDIR:-/tmp}/proto-lab-$SLUG-$SEED"; mkdir -p "$WORK"
+   # step 1: write the captured brief to "$WORK/brief.md"
+   python3 "$SKILL_DIR/scripts/roll.py" --seed "$SEED" --out "$WORK/direction.json"
+   # step 3: write "$WORK/points.json", then scaffold and copy the brief in:
+   python3 "$SKILL_DIR/scripts/scaffold.py" --target "$PROJECT/prototypes" --slug "$SLUG" --card "$WORK/direction.json" --points "$WORK/points.json"
+   cp "$WORK/brief.md" "$PROJECT/prototypes/$SLUG-$SEED/brief.md"
+   ```
+
    **Stop and get a quick OK from the user before spending any generation.**
    **Cannot ask?** A non-interactive harness cancels the question tool — that removes the
    *answer*, not the *gate*. Write the card + `points.json` (and the step-3 `scaffold.py`
@@ -147,9 +165,12 @@ A request beyond a cap is capped, not obeyed: apply the cap and state it in one
 line (e.g. `6 points requested → 4 (cap)`). Cutting scope that way is allowed;
 cutting a step is not.
 
-Slop is scanned mechanically:
-`python3 scripts/check_slop.py <paths> [--allow-font NAME]` exits 1 iff it finds
-**≥ 4** hits. Details in `references/slop-fingerprints.md`.
+Slop is scanned mechanically **once per generated `.html`**:
+`python3 "$SKILL_DIR/scripts/check_slop.py" <one-page.html> [--allow-font NAME]`.
+Each invocation decides that page and exits 1 iff **that page** finds **≥ 4**
+hits. A call with several paths **sums** their hits into one count — that is not
+a per-page verdict and must never be used as one. Details in
+`references/slop-fingerprints.md`.
 
 ### Canvas contract (R16)
 
@@ -177,11 +198,12 @@ file://-safe (`assets/gallery.html` is display-only, zero cross-frame scripting;
 | `--skip-research` | research on | Skips step 4; say so in the handoff. |
 | `--points <n>` | 4 | Number of decision points, capped at ≤ 4. |
 | `--variants <n>` | 3 | Structural variants per point; 2 allowed, capped at 3. |
-| `--wild` | off | Each variant rolls its own direction (extra mode). |
+| `--wild` | off | Experimental, not wired: records `wild: true` in the card; every variant still uses the session card's direction (per-variant cards are owned by `docs/roadmap.md`). |
 
-Related interfaces: `scripts/roll.py`/`scripts/roll.mjs` (`--seed --domain --wild --out --catalog`),
-`scripts/scaffold.py` (`--target --slug --card --points`), `scripts/check_slop.py`
-(`<paths> [--allow-font NAME]`), `scripts/serve.py` (`--port 8765 --dir PATH`). Seed
+Related interfaces (all under `$SKILL_DIR`): `scripts/roll.py`/`scripts/roll.mjs`
+(`--seed --domain --wild --out --catalog`), `scripts/scaffold.py`
+(`--target --slug --card --points`), `scripts/check_slop.py`
+(`<one-page.html> [--allow-font NAME]`), `scripts/serve.py` (`--port 8765 --dir PATH`). Seed
 algorithm spec: `references/seed-algorithm.md`. Point taxonomy:
 `references/decision-points.md`. Judge rubric: `references/judge-rubric.md`.
 Research protocol: `references/research-protocol.md`. Handoff formats:

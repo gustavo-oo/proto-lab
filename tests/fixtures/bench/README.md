@@ -8,7 +8,7 @@ Fabricated result snapshots for `tests/test_compare.py` (Task 24). They are
 | snapshot | purpose |
 |---|---|
 | `vA` | skill `0.1.0`, suite `v1`, model `harness-model-A`, harness `opencode/cli` |
-| `vB` | skill `0.1.1`, same suite/model/harness. Exactly **one** metric improved (`s01 gate_checklist_pass` 0.833 → 1.000) and exactly **one** worsened (`s02 slop_hits` 1 → 4 → the only `⚠`). Everything else holds or improves, including the lower-is-better metrics (`s01 slop_hits` 2 → 1, `s02 fix_rounds` 1 → 0, the shrinking `html_bytes_total`). |
+| `vB` | skill `0.1.1`, same suite/model/harness. Many metrics improved (`s01 gate_checklist_pass` 0.833 → 1.000, `s01 slop_hits` 2 → 1, `s02 fix_rounds` 1 → 0, `s04 distinct_directions` 2 → 3, `s05 structural_divergence` 1 → 2, the shrinking `html_bytes_total`) and exactly **one** worsened (`s02 slop_hits` 1 → 4 → the only `⚠`). Everything else holds. |
 | `vA-suite-v2` | `vA` re-recorded under `suite_version` `v2` → the comparator must refuse the comparison (exit 2). |
 | `vC-env` | `vB` re-recorded on a different model/harness (`harness-model-B` / `opencode/desktop`) and with `s04 file_nav_ok` dropped → the "não apples-to-apples" warning plus the `n/a` (missing metric) row. |
 

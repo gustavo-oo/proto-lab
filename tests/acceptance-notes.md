@@ -70,11 +70,11 @@ above, plus `a5`/`a6` for the two canvas widths.
 - **Screenshots not committed** (binary-image constraint). Evidence lives at the
   absolute temp paths above and in the commit body.
 - **Gallery register.** The scaffolded `index.html` renders in the gallery
-  template's *neutral* register, not D10: the template comment says the direction
-  card overrides `--accent/--font-text`, but `scaffold.py` only substitutes
-  seed/direction/family/points rows. Pre-existing `assets/` template-vs-doc
-  mismatch (Task 12), out of scope for T19; recorded so it is not read as a D10
-  failure.
+  template's *deliberate neutral* register, not D10: `scaffold.py` only
+  substitutes seed/direction/family/points rows and the template documents that
+  it does not inject the card's tokens. Applying the direction to the gallery is
+  an open gap in `docs/roadmap.md` (owner T12/T14); recorded so it is not read
+  as a D10 failure.
 - **Webface availability.** The variant/styleguide pages link Google Fonts
   (`fonts.googleapis.com`, an allow-listed host) and rendered with the webfaces
   present. Offline the same-class fallbacks (Archivo Narrow→Arial Narrow, Space
@@ -130,12 +130,12 @@ o `SKILL.md` do worktree empacotado no scratch, recebeu o **mesmo brief do exemp
 (`examples/coffee-log-cafe-com-leite/brief.md`), a seed fixa, `--skip-research`,
 `--points 1` e `--variants 1`. **Escopo declarado sem eufemismo:** a aceitação quer
 **uma tela principal por direção** ("1 tela", como pede o brief), e `--variants 1`
-é uma **devição abaixo do piso documentado da skill** — `SKILL.md` define a flag
+é uma **desvio abaixo do piso documentado da skill** — `SKILL.md` define a flag
 como *"2 allowed, capped at 3"* e a constraint global diz *"3 variantes (2 permitido
 via flag)"*, ou seja o piso sancionado é **2**, não 1. A única justificativa para ir
 abaixo disso é que este experimento compara **cartas de direção** (seeds →
 direções), não variantes, e uma variante basta como a tela principal. Isso **não** é
-um "corte de escopo" sancionado pelo SKILL.md — é uma deviação declarada — e por
+um "corte de escopo" sancionado pelo SKILL.md — é uma desvio declarada — e por
 isso esta rodada **não** é uma sessão de pipeline completa e conforme.
 
 **Scratch (fora do repo).**
@@ -252,7 +252,7 @@ Mesma seed → mesma carta, sem timestamp.
 
 - **Screenshots não commitados** (imagem binária proibida). A evidência vive nos
   caminhos absolutos + dimensões + `sha256` acima.
-- **`--variants 1` é deviação declarada, não um corte sancionado.** O piso
+- **`--variants 1` é desvio declarada, não um corte sancionado.** O piso
   documentado da skill é **2** (`SKILL.md`: *"2 allowed, capped at 3"*; constraint
   global: *"3 variantes (2 permitido via flag)"*). A aceitação rodou com **1** por
   comparar **cartas de direção**, não variantes. As demais etapas (roll, gate,

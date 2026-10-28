@@ -5,10 +5,11 @@ Two deliverables are pinned here:
 * ``benchmarks/compare.py`` -- the version-to-version comparator. The fixtures
   under ``tests/fixtures/bench/`` are fabricated result snapshots:
 
-  - ``vA`` (skill 0.1.0) and ``vB`` (skill 0.1.1) differ in exactly one
-    improved metric (``s01 gate_checklist_pass`` 0.833 -> 1.000) and exactly
-    one worsened metric (``s02 slop_hits`` 1 -> 4). Everything else is equal
-    or better, so the ``⚠`` marks must single out the regression;
+  - ``vA`` (skill 0.1.0) and ``vB`` (skill 0.1.1) differ in many improved
+    metrics (e.g. ``s01 gate_checklist_pass`` 0.833 -> 1.000,
+    ``s04 distinct_directions`` 2 -> 3) and exactly one worsened metric
+    (``s02 slop_hits`` 1 -> 4). Everything else holds or improves, so the
+    ``⚠`` marks must single out the regression;
   - ``vA-suite-v2`` is ``vA`` recorded under a different ``suite_version``
     (``v2``) -> the comparison is refused with exit 2;
   - ``vC-env`` is ``vB`` recorded on a different model/harness (and with

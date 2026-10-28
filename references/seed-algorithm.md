@@ -73,7 +73,7 @@ no extra metadata:
 | `family`         | string                      | Direction family (e.g. `quiet`, `dark`, `retro`, `print`). |
 | `knobs`          | object                      | Orthogonal variations, see **Knobs**. |
 | `filters`        | object `{domain, excluded}` | Domain filter applied at draw time. |
-| `wild`           | boolean                     | Whether the variant drew its own direction (`--wild`). |
+| `wild`           | boolean                     | Recorded `--wild` flag; it does not change the draw today (per-variant directions are not wired). |
 
 `filters` is `{"domain": str | null, "excluded": [direction ids]}`: the declared
 domain (or `null` when none) and the ids pruned by the domain filter.

@@ -251,8 +251,18 @@ class IndexRenderTest(ScaffoldTest):
         self.assertIn("<!DOCTYPE html>", index)
         self.assertNotIn("<script", index, "the gallery is display-only")
 
-    def test_brief_md_is_an_empty_file_with_a_header(self):
+    def test_fresh_session_gets_the_brief_header(self):
         self.assertEqual(self.read("brief.md"), "# Brief\n")
+
+    def test_pre_existing_brief_survives_a_scaffold_run(self):
+        # Step 1 captures the brief; step 3 runs the scaffolder. The scaffold
+        # must not destroy what step 1 wrote (the pre-fix behaviour).
+        brief = self.session / "brief.md"
+        captured = "# Brief\n\n" + ("captured context\n" * 130)
+        self.assertGreaterEqual(len(captured.encode("utf-8")), 2048)
+        brief.write_text(captured, encoding="utf-8")
+        scaffold.build(self.target, SLUG, self.card, self.points)
+        self.assertEqual(brief.read_text(encoding="utf-8"), captured)
 
 
 class CanvasCopyTest(ScaffoldTest):
@@ -320,6 +330,26 @@ class IdempotencyTest(ScaffoldTest):
         marker.write_text("PASS\n", encoding="utf-8")
         scaffold.build(self.target, SLUG, self.card, self.points)
         self.assertEqual(marker.read_text(encoding="utf-8"), "PASS\n")
+
+    def test_rerun_never_clobbers_a_started_artifact(self):
+        # A rerun with the same card must leave files the executor started to
+        # fill alone too, not only files added by later pipeline steps.
+        started = {
+            "index.html": "<!DOCTYPE html><html><body>started gallery</body></html>\n",
+            "direction.json": '{"started": true}\n',
+            "points.json": '{"started": true}\n',
+            "points/d1-%s.html" % SLUG: "<!DOCTYPE html><html><body>started canvas</body></html>\n",
+            "variants/d1-a/index.html": "<!DOCTYPE html><html><body>started variant</body></html>\n",
+        }
+        for relative, text in started.items():
+            (self.session / relative).write_text(text, encoding="utf-8")
+        scaffold.build(self.target, SLUG, self.card, self.points)
+        for relative, text in started.items():
+            self.assertEqual(
+                (self.session / relative).read_text(encoding="utf-8"),
+                text,
+                "a rerun must never overwrite %s" % relative,
+            )
 
     def test_same_inputs_in_two_targets_yield_identical_bytes(self):
         other_tmp = tempfile.TemporaryDirectory()

@@ -92,7 +92,7 @@ cheap model the harness is configured with. **Defaults:** ≤ 4 decision points,
 | Cache the research | Reuse `research.md` for the same domain instead of re-fetching. |
 | `--variants 2` | Two structural variants per point instead of three (floor; capped at 3). |
 | `--points <n>` | Fewer decision points; the floor is 1 point (= 3 screens + canvas + gallery). |
-| `--wild` off (default) | One direction per session; `--wild` rolls a direction per variant and costs more. |
+| `--wild` off (default) | Experimental, not wired: it only records `wild: true` in the card; every variant still uses the session direction, so it adds no generation cost today (per-variant cards are an open gap in `docs/roadmap.md`). |
 | Code-first judge | Skip the screenshot pass when no browser tool is available; the five axes still run. |
 
 **Acceptance evidence.** The visual acceptance run (`tests/acceptance-notes.md`,

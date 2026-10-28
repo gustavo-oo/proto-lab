@@ -12,6 +12,11 @@ The rule the whole directory exists for:
 Read them in that order. `CHANGELOG.md` says what was touched; the comparison
 run says whether the measured behavior moved — including regressions.
 
+**No baseline is recorded.** T25 (the v0.1.0 benchmark run) was cut by user
+directive, so `results/` is absent. The first measured version records
+`benchmarks/results/<version>/` and skips `compare.py` — there is nothing to
+compare against yet.
+
 ---
 
 ## Layout

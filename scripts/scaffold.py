@@ -8,7 +8,7 @@ directory — the pre-generation subset of the spec §4 tree:
     <target>/<slug>-<seed>/
       index.html                 # gallery, filled from assets/gallery.html
       direction.json             # the card, canonical JSON (source of truth)
-      brief.md                   # empty placeholder with its header
+      brief.md                   # captured brief placeholder (header only when absent)
       points.json                # the decision points, verbatim
       points/<id>-<slug>.html    # comparison canvas (assets/canvas.html)
       variants/<id>-<key>/       # one directory per option
@@ -28,10 +28,12 @@ Two contracts shape the copies:
   canvas would corrupt the anchor it must find. ``{{CANVAS_TITLE}}`` and
   ``{{VARIANT_LABEL}}`` are likewise left for the generator.
 
-The build is **idempotent**: every byte written is a deterministic function of
-the inputs (the card carries no timestamp), so a second run over the same
-arguments changes nothing, and files the later pipeline steps added are left
-alone.
+The build is **idempotent and non-destructive**: every byte written is a
+deterministic function of the inputs (the card carries no timestamp), and a file
+that already exists is never rewritten. A second run over the same arguments
+therefore changes nothing, the captured ``brief.md`` survives the scaffold step,
+and files the later pipeline steps or the executor started are left alone. To
+regenerate a session from changed inputs, remove its directory first.
 
 Python stdlib only, Python >= 3.8.
 
@@ -61,8 +63,21 @@ GALLERY_TEMPLATE = ASSETS / "gallery.html"
 CANVAS_TEMPLATE = ASSETS / "canvas.html"
 VARIANT_TEMPLATE = ASSETS / "variant-shell.html"
 
-# The brief placeholder is created empty, with its header only.
+# The brief placeholder is created with its header only, and only when absent,
+# so a brief captured in step 1 survives the step-3 scaffold.
 BRIEF_HEADER = "# Brief\n"
+
+
+def _write_if_absent(path, text):
+    """Write ``text`` unless the file exists; existing bytes always win."""
+    if not path.exists():
+        path.write_text(text, encoding="utf-8")
+
+
+def _copy_if_absent(source, destination):
+    """Copy ``source`` to ``destination`` unless the destination exists."""
+    if not destination.exists():
+        shutil.copyfile(source, destination)
 
 
 def _option_summary(options):
@@ -129,8 +144,8 @@ def build(target_dir, slug, card, points):
     """Create ``<target_dir>/<slug>-<seed>/`` and return that directory.
 
     ``card`` is the CARD SCHEMA dict rolled from the seed; ``points`` is the
-    parsed ``points.json``. Writes are unconditional but content-addressed by
-    the inputs, so rerunning is a no-op at the byte level.
+    parsed ``points.json``. Every write is **if-absent**: rerunning is a no-op at
+    the byte level and never clobbers a captured brief or a started artifact.
     """
     target = Path(target_dir)
     session = target / ("%s-%s" % (slug, card["seed"]))
@@ -139,23 +154,17 @@ def build(target_dir, slug, card, points):
     points_dir.mkdir(parents=True, exist_ok=True)
     variants_dir.mkdir(parents=True, exist_ok=True)
 
-    (session / "index.html").write_text(
-        render_index(card, points, slug), encoding="utf-8"
-    )
-    (session / "direction.json").write_text(
-        roll.dumps(card) + "\n", encoding="utf-8"
-    )
-    (session / "points.json").write_text(
-        roll.dumps(points) + "\n", encoding="utf-8"
-    )
-    (session / "brief.md").write_text(BRIEF_HEADER, encoding="utf-8")
+    _write_if_absent(session / "index.html", render_index(card, points, slug))
+    _write_if_absent(session / "direction.json", roll.dumps(card) + "\n")
+    _write_if_absent(session / "points.json", roll.dumps(points) + "\n")
+    _write_if_absent(session / "brief.md", BRIEF_HEADER)
 
     for point in points.get("points", ()):
-        shutil.copyfile(CANVAS_TEMPLATE, points_dir / canvas_name(point, slug))
+        _copy_if_absent(CANVAS_TEMPLATE, points_dir / canvas_name(point, slug))
         for option in point.get("options", ()):
             variant_dir = variants_dir / variant_name(point, option)
             variant_dir.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(VARIANT_TEMPLATE, variant_dir / "index.html")
+            _copy_if_absent(VARIANT_TEMPLATE, variant_dir / "index.html")
 
     return session
 
