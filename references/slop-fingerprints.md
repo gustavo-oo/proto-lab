@@ -17,6 +17,14 @@ deterministically matched; `heuristic` = the pattern matched and the direction
 does not justify it). Only hits whose direction does not legitimately earn the
 pattern are counted.
 
+## Copy is a separate gate
+
+`references/copy-contract.md` defines C01-C04 (item-count labels, repeated
+facts, filler copy, separator glyphs). Those checks are **zero-tolerance** and
+are **not** counted in the `≥ 4` visual cluster below. The judge reports them
+separately as `copy: C01..C04` alongside `visual: N/26`; any unresolved copy
+finding fails `slop-scan`.
+
 ## Fingerprints
 
 `mechanical` fingerprints have a rule id (`R01`–`R22`) and a rule-based

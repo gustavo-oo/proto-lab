@@ -12,6 +12,11 @@ Provenance:
 - Disposable target project:
   `/private/var/folders/vl/8fqz68bx3ksb6nxg0nnnpw9w0000gn/T/opencode/proto-lab-scratch/`
 - Fingerprint ids (F1–F26) refer to `docs/research/directions-draft.md` §B.
+- **Copy contract:** these runs predate `references/copy-contract.md`
+  (C01-C04); their slop counts are visual-only and are not comparable to a run
+  after 0.3.0.
+- **UX-law checklist:** these runs predate `references/ux-laws.md` (U01-U11);
+  their walkthroughs did not record the curated law checks.
 - Pipeline steps are named as in the plan: **research / clarification / variants /
   judge / handoff**.
 
