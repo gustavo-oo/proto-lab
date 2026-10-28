@@ -19,6 +19,7 @@ Python stdlib only.
 """
 
 import hashlib
+import copy
 import json
 import subprocess
 import sys
@@ -31,6 +32,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import roll  # noqa: E402  (imported after the sys.path tweak above)
 import scaffold  # noqa: E402
+import snapshot  # noqa: E402
 
 SCRIPT = ROOT / "scripts" / "scaffold.py"
 ASSETS = ROOT / "assets"
@@ -71,6 +73,23 @@ EXPECTED_DIRECTORIES = {
 def card_fixture():
     """A real card from the roller (never a hand-written stub)."""
     return roll.roll(SEED)
+
+
+FIXTURES = ROOT / "tests" / "fixtures" / "fit"
+
+
+def fit_snapshot_fixture():
+    """A real fit snapshot from the committed fixtures."""
+    return snapshot.capture(
+        str(FIXTURES / "tokens.css"),
+        str(FIXTURES / "extra.json"),
+        str(FIXTURES / "existing.html"),
+    )
+
+
+def fit_card_fixture():
+    """A real FIT card pointing at the fixture snapshot's hash."""
+    return snapshot.make_card(fit_snapshot_fixture(), name="Acme")
 
 
 def points_fixture():
@@ -356,6 +375,133 @@ class IdempotencyTest(ScaffoldTest):
         self.addCleanup(other_tmp.cleanup)
         other = scaffold.build(Path(other_tmp.name), SLUG, self.card, self.points)
         self.assertEqual(relative_files(self.session), relative_files(other))
+
+
+class FitScaffoldTest(unittest.TestCase):
+    """Fit cards require a hash-matching snapshot and copy it into the session."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.target = Path(tmp.name)
+        self.points = points_fixture()
+        self.snapshot = fit_snapshot_fixture()
+        self.card = snapshot.make_card(self.snapshot, name="Acme")
+        self.session = scaffold.build(
+            self.target, SLUG, self.card, self.points, self.snapshot
+        )
+
+    def read(self, relative):
+        path = self.session / relative
+        self.assertTrue(path.is_file(), "missing fit scaffolder output: %s" % relative)
+        return path.read_text(encoding="utf-8")
+
+    def test_fit_session_adds_the_snapshot(self):
+        self.assertEqual(
+            self.read("style-snapshot.json"),
+            scaffold._snapshot_text(self.snapshot),
+        )
+
+    def test_fit_file_set_is_exact(self):
+        expected = set(EXPECTED_FILES) | {"style-snapshot.json"}
+        self.assertEqual(sorted(relative_files(self.session)), sorted(expected))
+
+    def test_fit_direction_json_equals_the_card(self):
+        self.assertEqual(json.loads(self.read("direction.json")), self.card)
+
+    def test_fit_card_requires_a_snapshot(self):
+        with self.assertRaises(ValueError) as caught:
+            scaffold.build(self.target, SLUG, self.card, self.points)
+        self.assertIn("require", str(caught.exception))
+
+    def test_snapshot_hash_must_match_the_card(self):
+        card = copy.deepcopy(self.card)
+        card["snapshot"]["hash"] = "sha256:" + "0" * 64
+        with self.assertRaises(ValueError) as caught:
+            scaffold.build(self.target, SLUG, card, self.points, self.snapshot)
+        self.assertIn("does not match", str(caught.exception))
+
+    def test_explore_card_rejects_a_snapshot(self):
+        with self.assertRaises(ValueError) as caught:
+            scaffold.build(
+                self.target, SLUG, card_fixture(), self.points, self.snapshot
+            )
+        self.assertIn("only valid", str(caught.exception))
+
+    def test_fit_second_run_is_byte_identical(self):
+        before = relative_files(self.session)
+        scaffold.build(self.target, SLUG, self.card, self.points, self.snapshot)
+        self.assertEqual(before, relative_files(self.session))
+
+    def test_fit_rerun_preserves_a_started_snapshot(self):
+        path = self.session / "style-snapshot.json"
+        marker = '{"started": true}\n'
+        path.write_text(marker, encoding="utf-8")
+        scaffold.build(self.target, SLUG, self.card, self.points, self.snapshot)
+        self.assertEqual(path.read_text(encoding="utf-8"), marker)
+
+
+class FitCliTest(unittest.TestCase):
+    """The fit CLI: `--card ... --snapshot ...` is a pair."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.target = Path(tmp.name)
+        self.work = self.target / "in"
+        self.work.mkdir()
+        self.card = fit_card_fixture()
+        self.snapshot = fit_snapshot_fixture()
+        self.points = points_fixture()
+        self.card_path = self.work / "card.json"
+        self.snapshot_path = self.work / "style-snapshot.json"
+        self.points_path = self.work / "points.json"
+        self.card_path.write_text(roll.dumps(self.card) + "\n", encoding="utf-8")
+        self.snapshot_path.write_text(
+            scaffold._snapshot_text(self.snapshot), encoding="utf-8"
+        )
+        self.points_path.write_text(
+            json.dumps(self.points) + "\n", encoding="utf-8"
+        )
+
+    def run_cli(self, *args):
+        return subprocess.run(
+            [sys.executable, str(SCRIPT), *args],
+            capture_output=True,
+            text=True,
+        )
+
+    def test_cli_fit_requires_snapshot(self):
+        result = self.run_cli(
+            "--target",
+            str(self.target),
+            "--slug",
+            SLUG,
+            "--card",
+            str(self.card_path),
+            "--points",
+            str(self.points_path),
+        )
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("--snapshot", result.stderr)
+
+    def test_cli_fit_with_snapshot_scaffolds_the_pair(self):
+        result = self.run_cli(
+            "--target",
+            str(self.target),
+            "--slug",
+            SLUG,
+            "--card",
+            str(self.card_path),
+            "--points",
+            str(self.points_path),
+            "--snapshot",
+            str(self.snapshot_path),
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        session = self.target / ("%s-%s" % (SLUG, self.card["seed"]))
+        self.assertTrue((session / "style-snapshot.json").is_file())
+        self.assertTrue((session / "direction.json").is_file())
 
 
 class CliTest(unittest.TestCase):

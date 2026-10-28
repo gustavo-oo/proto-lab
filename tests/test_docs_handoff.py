@@ -47,6 +47,14 @@ HANDOFF_FIDELITY = "## Fidelity notes"
 # The two fidelity values a component inventory entry can carry.
 REQUIRED_FIDELITY_VALUES = ("intentional", "placeholder")
 
+FIT_LITERALS = (
+    "style-snapshot.json",
+    "fit mode",
+    "origin: reused",
+    "existing system",
+    "snapshot `<hash>`",
+)
+
 CODE_BLOCK_RE = re.compile(r"```[a-zA-Z0-9_-]*[ \t]*\r?\n(.*?)```", re.DOTALL)
 
 
@@ -107,6 +115,19 @@ class HandoffFormatDocTest(unittest.TestCase):
     def test_derivation_rule_is_stated(self):
         self.assertIn("chosen variants", self.text)
         self.assertIn("direction card", self.text)
+
+    def test_fit_mode_handoff_is_documented(self):
+        missing = [item for item in FIT_LITERALS if item not in self.text]
+        self.assertEqual(
+            missing,
+            [],
+            "handoff format is missing fit literals: %s" % ", ".join(missing),
+        )
+
+    def test_handoff_template_carries_the_fit_origin(self):
+        block = self._block_containing(HANDOFF_COMPONENTS)
+        for item in ("origin: reused", "fit mode"):
+            self.assertIn(item, block)
 
 
 if __name__ == "__main__":

@@ -1,18 +1,22 @@
 # Roadmap — what is fixed, what is open, what is not covered
 
-File references are to `SKILL.md` at v0.4.0; line numbers are indicative.
+File references are to `SKILL.md` at v0.5.0; line numbers are indicative.
 
-**Current version: 0.4.0** (`VERSION`, `CHANGELOG.md`). 0.4.0 adds the curated
-Laws of UX checklist (U01-U11) inside the `strangeness` axis, with explicit
-"not a hard rule" caveats; the five-axis contract is unchanged. 0.3.0 added the
-zero-tolerance copy gate (C01-C04) and `scripts/check_copy.py`; the visual
-fingerprint cluster keeps its `>= 4 hits` threshold. The 0.1.1 corrective
-release tightened the skill guidance (domain-filter vocabulary, cap message,
-reroll offer, per-page slop, skill-relative commands), the scaffolder's overwrite
-rule, the judge report provenance, the `README.md` pointer and the
-version/changelog/test constants. 0.2.0 removes the benchmark harness: measuring
-every version cost more tokens than it returned, and no baseline was ever
-recorded.
+**Current version: 0.5.0** (`VERSION`, `CHANGELOG.md`). 0.5.0 adds **fit mode**
+(`--fit <source>`): the existing visual system is captured into
+`style-snapshot.json` and used as the direction instead of a catalogue draw, with
+`observed`/`declared`/`inferred` evidence, a FIT card, snapshot-fidelity judging
+and inherited-slop accounting. Explore mode and the 22-catalogue are unchanged.
+0.4.0 added the curated Laws of UX checklist (U01-U11) inside the `strangeness`
+axis, with explicit "not a hard rule" caveats; the five-axis contract is
+unchanged. 0.3.0 added the zero-tolerance copy gate (C01-C04) and
+`scripts/check_copy.py`; the visual fingerprint cluster keeps its
+`>= 4 hits` threshold. The 0.1.1 corrective release tightened the skill guidance
+(domain-filter vocabulary, cap message, reroll offer, per-page slop,
+skill-relative commands), the scaffolder's overwrite rule, the judge report
+provenance, the `README.md` pointer and the version/changelog/test constants.
+0.2.0 removes the benchmark harness: measuring every version cost more tokens
+than it returned, and no baseline was ever recorded.
 
 This file is the single place where a finding from the adversarial hunt (T27,
 `docs/reviews/2026-10-17-adversarial.md`) lands. Nothing is dropped silently:
@@ -67,6 +71,10 @@ Behaviour retests for the fixes from the review (not new suite tests):
 | 8 | Minor | Direction DNA can be deviated without escalation: T26 shipped 2–4px radii where D19 asks for 6–10px, logged as a minor and left open. | `2026-10-17-final-use-case.md:45, 137-139`. | Make a declared-DNA deviation a major on axis 4, or require it to be recorded in the handoff as an accepted deviation. | `references/judge-rubric.md` |
 | 9 | Minor | Research depth: six text-only sources at the cap, spot-checked, no screenshots. | `2026-10-17-final-use-case.md:117-118, 145-146`. | Require screenshot/UI evidence per source when a browser tool exists; mark text-only runs as degraded. | `references/research-protocol.md` |
 | 10 | Minor (deliberate) | The gallery keeps its neutral chrome and does not apply the direction card's tokens (`--accent`/`--font-text`/`--font-mono`); an inverted direction can show a cream gallery beside a dark variant set. | `assets/gallery.html` (template comment), `scripts/scaffold.py` `render_index`, `examples/coffee-log-cafe-com-leite/judge-report.md` open findings. | Either inject the card tokens in `render_index` (and test the palette/font mapping) or keep the neutral register documented as deliberate; the current template documents the choice. | T12/T14 |
+| 11 | **Major** | Fit-mode extraction reads CSS custom properties and font families; Tailwind configs and CSS-in-JS theme objects require authored `--extra`. | `scripts/snapshot.py` `_walk_candidates` records a Tailwind config as a gap; `references/fit-mode.md` (`declared`). | Parse `tailwind.config.*`/theme objects, or accept a generated CSS file; add fixtures. | `scripts/snapshot.py`, `tests/test_snapshot.py` |
+| 12 | **Major** | URL capture is a browser recipe, not a scripted command: `snapshot.py` never fetches, so an `observed` snapshot depends on the executor's `--extra`. | `references/fit-mode.md` (`observed`), `scripts/snapshot.py --from <url>`. | Add a browser-tool capture helper for computed styles and selectors; keep the script network-free. | `references/fit-mode.md`, future helper |
+| 13 | Minor | Multi-theme snapshots capture only the default theme; dark/alt themes become gaps. | `references/fit-mode.md` (Degradation), snapshot `gaps`. | Add a `theme` field and a second snapshot per theme, or capture both in one file. | `scripts/snapshot.py` |
+| 14 | Minor | Component recipes are authored from computed styles/CSS, not parsed automatically. | `references/fit-mode.md` (snapshot schema), `scripts/snapshot.py` extraction. | Add selector/state extraction for common primitives; keep authored `--extra` as the fallback. | `scripts/snapshot.py` |
 
 ## Not contemplated
 

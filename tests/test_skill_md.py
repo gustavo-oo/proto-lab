@@ -43,10 +43,20 @@ REQUIRED_LITERALS = (
     "--points",
     "--variants",
     "--wild",
+    "--fit",
     "≥ 4",
     "≤ 4",
     "≤ 3",
     "≤ 6",
+)
+
+FIT_LITERALS = (
+    "references/fit-mode.md",
+    "style-snapshot.json",
+    "snapshot fidelity",
+    "direction_id: \"FIT\"",
+    "inherited fingerprints",
+    "origin: reused | new | extension",
 )
 
 COPY_CONTRACT_LITERALS = (
@@ -177,6 +187,14 @@ class SkillMdTest(unittest.TestCase):
             missing,
             [],
             "missing required literals: %s" % ", ".join(missing),
+        )
+
+    def test_fit_mode_is_documented(self):
+        missing = [lit for lit in FIT_LITERALS if lit not in self.text]
+        self.assertEqual(
+            missing,
+            [],
+            "missing fit-mode literals: %s" % ", ".join(missing),
         )
 
     def test_judge_round_cap_is_present(self):

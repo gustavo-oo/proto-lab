@@ -1,6 +1,6 @@
 ---
 name: proto-lab
-description: Use when the user wants to explore UI design options, compare structural alternatives for a screen or flow, or produce HTML prototypes and mockups before implementation — design first, implement later.
+description: Use when the user wants to explore UI design options, compare structural alternatives for a screen or flow, fit a new screen to an existing visual system, or produce HTML prototypes and mockups before implementation — design first, implement later.
 ---
 
 # proto-lab
@@ -18,6 +18,7 @@ One session produces, inside the target project:
 prototypes/<slug>-<seed>/
   index.html          direction card + decision points + links (the "figma")
   direction.json      the direction card: seed, direction, DNA, knobs — source of truth
+  style-snapshot.json captured existing system + provenance (fit mode only)
   brief.md            captured brief
   points.json         decision points + contract (axis/options) + choice status
   research.md         competitors/analogues, cited (when research is on)
@@ -33,9 +34,11 @@ prototypes/<slug>-<seed>/
 
 ## Core principle
 
-**Choose the design before implementing it, and diverge on purpose.** A seed
-selects one direction from a closed catalogue of 22; every variant for a point is
-a *structural* answer to that point, not a repaint. The direction card
+**Choose the design before implementing it, and diverge on purpose.** In
+**explore** mode (default) a seed selects one direction from a closed catalogue
+of 22; in **fit** mode (`--fit`) the visual direction is the captured existing
+system in `style-snapshot.json`. Either way, every variant for a point is a
+*structural* answer to that point, not a repaint. The direction card
 (`direction.json`) is the source of truth — a committed card beats re-deriving
 one. The judge is a pre-human gate: nothing reaches the user before it has been
 critiqued and corrected. Improvising a direction, skipping the judge, or shipping
@@ -51,11 +54,15 @@ language for prose.
 - The user wants HTML prototypes/mockups to react to before implementation.
 - The user asks to "make it look better" and the visual direction is unresolved.
 - The user is starting a new UI surface and wants a direction picked first.
+- The user wants a new screen or flow to belong to an existing product's visual
+  system (`--fit`).
 
 ## When Not to Use
 
 - The user wants production code written now — this produces prototypes, not an app.
 - The task is a copy/behaviour fix on a known, decided design.
+- The user wants a pixel-perfect clone of one page — use the real code.
+- The user wants a rebrand — fit mode preserves identity; use explore mode.
 - The user explicitly wants a single throwaway one-screen sketch — say what gets
   dropped (see **Red Flags**) rather than silently skipping the pipeline.
 
@@ -70,7 +77,9 @@ the judge loop.
    or the degraded one (see **Degradation**).
 1. **Brief** — Capture product, audience, goal, key screens, constraints into
    `"$WORK/brief.md"` (the work dir is set below). Ask **at most 3 questions**, only
-   for load-bearing fields. Pick a seed (random short string, or explicit `--seed`).
+   for load-bearing fields. If the user asks to fit an existing system, also record
+   the source (`--fit <repo path | URL | tokens file>`) in the brief; fit mode is
+   opt-in. Pick a seed (random short string, or explicit `--seed`).
    Paths below are relative to **this skill's directory** (`<skill-dir>`); commands
    run from the target project.
 2. **Roll** — write the card to a known path:
@@ -85,6 +94,14 @@ the judge loop.
    substring), so pass tag-shaped text (`--domain "dense tables hotel dashboard"`), not a
    prose sentence or another language, or nothing is pruned. Read `filters.excluded` back
    and reroll if the catalogue entry's `fails` still condemn it.
+   **Fit mode instead of rolling:** run
+   `python3 "$SKILL_DIR/scripts/snapshot.py" --from <source> --extra "$WORK/fit-extra.json"
+   --out "$WORK/style-snapshot.json" --card "$WORK/direction.json" --name "<product>"`.
+   It extracts CSS custom properties/fonts, merges the authored components/layout/voice,
+   validates and hashes the snapshot, and writes the FIT card. A URL source is captured
+   through a browser tool into `--extra`; the script never fetches. `--domain` and
+   `--wild` are rejected with `--fit`; there is no visual reroll — correct the snapshot
+   and re-run `--check` (see `references/fit-mode.md`).
 3. **Points** *(the single gate)* — Derive decision points and their named
    structural options into `"$WORK/points.json"` (contract: axis + options). Then create
    the session skeleton with `--target <project>/prototypes` — the scaffolder's target is
@@ -103,6 +120,9 @@ the judge loop.
    ```
 
    **Stop and get a quick OK from the user before spending any generation.**
+   **Fit mode:** the gate also confirms `style-snapshot.json`; each gap becomes a
+   supplied value, an approved `extensions[]` entry, or an accepted out-of-scope note.
+   A correction changes the hash, so regenerate `direction.json` before generation.
    **Cannot ask?** A non-interactive harness cancels the question tool — that removes the
    *answer*, not the *gate*. Write the card + `points.json` (and the step-3 `scaffold.py`
    skeleton it names), present them, and **end the turn**; spend no generation — write no
@@ -127,6 +147,9 @@ the judge loop.
    (`references/copy-contract.md`), the UX-law checklist (`references/ux-laws.md`)
    and the guardrails; each writes 3 structural variants (2–3 linked screens). You
    assemble the gallery and the per-point comparison canvas.
+   **Fit mode:** pass `style-snapshot.json` to every generator; all variants inherit
+   it. No new fonts/accents/radii — a new value is only a gate-approved `extensions[]`
+   entry.
 6. **Judge** — A fresh-eyes judge subagent runs the 5 axes code-first (plus
    screenshots if a browser tool exists), writes findings with severity to
    `judge-report.md`. The `slop-scan` axis has two halves: the visual fingerprints
@@ -136,6 +159,10 @@ the judge loop.
    `references/ux-laws.md` for the screen's component types; record `N/A` where a
    law does not apply. Blockers/majors → fix → re-judge, **≤ 2 rounds**. Nothing is
    presented until the report is PASS or the failures are stated openly.
+   **Fit mode:** axis 4 is snapshot fidelity — every value traces to the snapshot or an
+   approved extension; an unapproved token is a major, a changed register is a blocker.
+   `slop-scan` reports `N new / M inherited`; inherited fingerprints are exempt, `>= 4`
+   new hits fail. The copy gate is unchanged.
    **Inline judging** (no subagent available) is allowed only as an explicit, declared
    degradation: the report header must state `fresh-eyes independence: lost (inline)` —
    an inline self-review is never labelled a clean fresh-eyes judge.
@@ -149,6 +176,8 @@ the judge loop.
 8. **Record** — `decisions.md`: chosen + rejected + why, including rerolled seeds.
 9. **Handoff** — `tokens.css` + `handoff.md` + `chosen/` + `styleguide.html`
    (static mini design system). Formats in `references/handoff-format.md`.
+   **Fit mode:** `tokens.css` preserves the existing names/values; each `handoff.md`
+   component carries `origin: reused | new | extension`.
    **No user pick?** An unattended run that could not get a per-point choice may legitimately
    emit only `tokens.css` (the chosen direction's token scales) plus its invariants, and must
    record `chosen/`, `handoff.md` and `styleguide.html` as **pending the user's pick** — never
@@ -224,10 +253,25 @@ token substitution. Keep that block's structure intact so the deck stays
 file://-safe (`assets/gallery.html` is display-only, zero cross-frame scripting;
 `assets/variant-shell.html` is the neutral variant shell).
 
+### Fit mode (opt-in)
+
+`--fit <source>` captures the existing visual system instead of drawing a direction.
+`style-snapshot.json` is the source of truth: tokens by role, type scale, component
+recipes, layout shell, optional voice samples, inherited slop and gaps, each with
+provenance and an `observed`/`declared`/`inferred` evidence level. The 22-catalogue
+is bypassed; never blend a catalogue direction with the existing system. The fit card
+records `mode: "fit"`, `direction_id: "FIT"` and the snapshot hash. Structural
+divergence at points is unchanged — fit mode is not a repaint machine. Full contract:
+`references/fit-mode.md`.
+
 ## Inviolable rules
 
-1. **Do not read the target project's code or UI for design** — only its specs/docs
-   for requirements. "I followed the existing theme" is a violation.
+1. **Explore mode: do not read the target project's code or UI for design** — only its
+   specs/docs for requirements. "I followed the existing theme" is a violation.
+   **Fit mode: read only the declared visual sources** (tokens, theme, global CSS,
+   component primitives, computed styles), with provenance; never business logic, API
+   clients or data models. "I invented a token the snapshot does not contain" is the
+   violation.
 2. **Do not invent a direction outside the catalogue of 22** (`references/directions.md`).
 3. **Do not skip the judge.** No presentation before the judge report passes, unless
    you report openly what failed.
@@ -238,14 +282,16 @@ file://-safe (`assets/gallery.html` is display-only, zero cross-frame scripting;
 | Flag | Default | Effect |
 |---|---|---|
 | `--seed <string>` | random short seed | Fixes the direction; same `--seed` → same card. Reroll = new `--seed`. |
+| `--fit <source>` | off | Opt-in fit mode: capture the existing system as the direction; incompatible with `--domain`/`--wild`; no visual reroll. See `references/fit-mode.md`. |
 | `--skip-research` | research on | Skips step 4; say so in the handoff. |
 | `--points <n>` | 4 | Number of decision points, capped at ≤ 4. |
 | `--variants <n>` | 3 | Structural variants per point; 2 allowed, capped at 3. |
 | `--wild` | off | Experimental, not wired: records `wild: true` in the card; every variant still uses the session card's direction (per-variant cards are owned by `docs/roadmap.md`). |
 
 Related interfaces (all under `$SKILL_DIR`): `scripts/roll.py`/`scripts/roll.mjs`
-(`--seed --domain --wild --out --catalog`), `scripts/scaffold.py`
-(`--target --slug --card --points`), `scripts/check_slop.py`
+(`--seed --domain --wild --out --catalog`), `scripts/snapshot.py`
+(`--from --extra --out --card --check`), `scripts/scaffold.py`
+(`--target --slug --card --points [--snapshot]`), `scripts/check_slop.py`
 (`<one-page.html> [--allow-font NAME]`), `scripts/check_copy.py`
 (`<one-page.html>`), `scripts/serve.py` (`--port 8765 --dir PATH`). Seed
 algorithm spec: `references/seed-algorithm.md`. Point taxonomy:
@@ -291,8 +337,14 @@ Stop and correct course if you catch yourself thinking or saying:
 - "One option is enough here." — One option is not a comparison; produce variants.
 - "Research takes too long; I'll skip it." — Either run it or use `--skip-research`
   and record the omission; do not silently drop it.
-- "I'll reuse the target's existing theme so it fits." — Reading the target's UI for
-  design is a violation.
+- "I'll reuse the target's existing theme so it fits." — Only in fit mode, from the
+  declared snapshot; in explore mode it is a violation.
+- "I'll eyeball the existing app and pick similar colours." — Fit mode captures the
+  snapshot with provenance; gaps are gate-resolved.
+- "I'll blend a catalogue direction with the existing system." — Two registers
+  averaged; the judge fails it.
+- "Inherited slop means the slop gate is off." — Inherited hits are recorded; new
+  hits still fail at ≥ 4.
 - "I'll invent a direction that matches this brief better." — Reroll the seed instead.
 - "I'll show it now and fix the findings after." — Present only after a PASS, or
   report the failures openly.
@@ -342,4 +394,6 @@ source of truth, so most routes degrade without losing the direction:
 | Research subagent "succeeded" but wrote nothing | Verify `research.md` exists; if not, fall back to `--skip-research`, record it, and continue — never stall. |
 | No per-point pick (unattended) | Emit `tokens.css` + invariants only; `chosen/`, `handoff.md`, `styleguide.html` stay pending the user's pick. |
 | Cost blow-up | Hard caps (≤ 4 points, ≤ 3 screens/variant, ≤ 6 sources, ≤ 2 rounds) plus flags (`--points`, `--variants`). |
-| Contamination by the target repo | Never read the target's code/UI for design; "followed the existing theme" is a declared red flag. |
+| Contamination by the target repo (explore) | Never read the target's code/UI for design; "followed the existing theme" is a declared red flag. |
+| Fit source unavailable | Ask for a token file, URL or screenshots; do not fake a snapshot; fall back to explore mode. |
+| Fit mode on a Node-only harness | `snapshot.py` is Python; write the card by hand from `references/fit-mode.md` or use Python; record the degradation. |

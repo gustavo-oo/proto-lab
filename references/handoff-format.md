@@ -14,7 +14,7 @@ The generator is not allowed to redesign at this step; it only transcribes.
 ## The derivation rule
 
 > **Everything in the handoff is derived only from the chosen variants + the
-> direction card.**
+> direction card** (and, in fit mode, `style-snapshot.json`).
 
 This is the load-bearing rule of the whole step. The handoff is a lossless
 extraction, not a new design pass:
@@ -43,7 +43,8 @@ Copy the template, replace the placeholders, delete nothing structural:
 ```markdown
 # Decisions — <slug>-<seed>
 - seed: `<seed>` (recorded; source of truth is `direction.json`)
-- direction: `<DNN> — <direction name>`
+- direction: `<DNN> — <direction name>` (fit mode: `FIT — Existing system`)
+- snapshot: `<hash>` (fit mode only)
 - points: <N> (cap 4)
 
 ## Chosen
@@ -118,6 +119,11 @@ register, §5.3); colors come from the variant palette, not a fresh pick;
 `styleguide.html` and any downstream component must consume these variables
 rather than re-declaring literals.
 
+**Fit mode.** Keep the existing custom-property names and values. When a
+consumer needs the five-prefix convention, add role aliases that point at the
+existing name and value; never rename or re-value the source token. An approved
+extension is marked in the file and cites its gate approval in `decisions.md`.
+
 ## styleguide.html
 
 The static mini design system of the pick: **one file**, no build, opens via
@@ -149,21 +155,25 @@ placeholder**. It also points back to where each decision was recorded.
 
 ```markdown
 # Handoff — <slug>-<seed>
-- direction: `<DNN> — <direction name>`
-- source: chosen variants in `chosen/` + `direction.json`
+- direction: `<DNN> — <direction name>` (fit mode: `FIT — Existing system`)
+- source: chosen variants in `chosen/` + `direction.json` (fit mode: + `style-snapshot.json`)
+- existing system: `<source>` · snapshot `<hash>` (fit mode only)
 - tokens: `tokens.css` · styleguide: `styleguide.html`
 
 ## Components
 - name: Button
   states: default, hover, focus, active, disabled
+  origin: reused | new | extension (fit mode)
   fidelity: intentional
   where: `chosen/d1/`, `styleguide.html#button` — decision: `decisions.md` (d1)
 - name: Card
   states: default, hover
+  origin: reused | new | extension (fit mode)
   fidelity: placeholder
   where: `chosen/d2/` — decision: `decisions.md` (d2); image area is a CSS/SVG placeholder
 - name: Nav
   states: default, collapsed
+  origin: reused | new | extension (fit mode)
   fidelity: intentional
   where: `chosen/d1/index.html` — decision: `decisions.md` (d1)
 

@@ -74,6 +74,16 @@ UX_LAW_LITERALS = (
     "major UX-law check",
 )
 
+FIT_LITERALS = (
+    "style-snapshot.json",
+    "snapshot fidelity",
+    "visual: N new / M inherited; copy: C01..C04",
+    "inherited_slop",
+    "fit mode: fit",
+    "snapshot: <hash>",
+    "approved_at_gate",
+)
+
 CODE_BLOCK_RE = re.compile(r"```[a-zA-Z0-9_-]*[ \t]*\r?\n(.*?)```", re.DOTALL)
 
 
@@ -175,6 +185,19 @@ class JudgeRubricDocTest(unittest.TestCase):
     def test_report_template_carries_the_ux_law_evidence(self):
         block = self._report_template_block()
         self.assertIn("UX-law ids", block)
+
+    def test_fit_mode_rules_are_documented(self):
+        missing = [item for item in FIT_LITERALS if item not in self.text]
+        self.assertEqual(
+            missing,
+            [],
+            "judge rubric is missing fit literals: %s" % ", ".join(missing),
+        )
+
+    def test_report_template_carries_fit_provenance(self):
+        block = self._report_template_block()
+        for item in ("fit mode: fit | explore", "snapshot: <hash> (fit only)"):
+            self.assertIn(item, block)
 
     def test_loop_stops_and_presents_with_the_open_marker(self):
         # Aligned with SKILL.md step 6: stop looping at the cap, present with
