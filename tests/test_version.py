@@ -14,8 +14,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
 
-EXPECTED_VERSION = "0.2.0"
-EXPECTED_CHANGELOG_HEADING = "## [0.2.0] - 2026-10-28"
+EXPECTED_VERSION = "0.4.0"
+EXPECTED_CHANGELOG_HEADING = "## [0.4.0] - 2026-10-28"
 
 
 class VersionTest(unittest.TestCase):
@@ -48,15 +48,18 @@ class VersionTest(unittest.TestCase):
         self.assertIn("### Added", changelog_text)
         self.assertIn("### Changed", changelog_text)
 
-        # 0.2.0 removed the benchmark harness, so the current release carries
-        # its own ### Removed section rather than inheriting older headings.
+        # 0.4.0 adds the UX-law checklist, so the current release carries its
+        # own ### Added and ### Changed sections rather than inheriting older
+        # headings.
         current = changelog_text.split(EXPECTED_CHANGELOG_HEADING, 1)[1]
         current = current.split("\n## ", 1)[0]
-        self.assertIn(
-            "### Removed",
-            current,
-            "%s must carry a ### Removed section" % EXPECTED_CHANGELOG_HEADING,
-        )
+        for section in ("### Added", "### Changed"):
+            self.assertIn(
+                section,
+                current,
+                "%s must carry a %s section"
+                % (EXPECTED_CHANGELOG_HEADING, section),
+            )
 
     def test_version_matches_changelog_heading(self):
         version_text = (REPO_ROOT / "VERSION").read_text(encoding="utf-8")

@@ -27,6 +27,13 @@ target project:
   fixes applied before you ever see the output;
 - a **handoff**: `tokens.css`, `handoff.md`, `chosen/` and `styleguide.html`.
 
+The judge also runs a zero-tolerance **copy gate**
+(`references/copy-contract.md`): no item-count labels, no repeated facts, no
+filler copy, and no separator glyphs joining metadata in product copy. The
+`strangeness` axis adds a curated **Laws of UX** checklist
+(`references/ux-laws.md`, U01-U11) for the screen's component types; these are
+heuristics, not hard caps.
+
 **Why force divergence.** Language models converge on the same "average" UI.
 The evidence says this is structural, not a prompting bug: the *Design
 Creativity Bench* (arXiv 2610.11539) shows LLM-generated UIs are markedly more
@@ -115,7 +122,7 @@ Figures come from that run; nothing here is estimated.
 3 Points   derive decision points + named structural options   <<< the single gate
 4 Research 3-6 cited competitors/analogues of the domain
 5 Generate one generation per point, in parallel -> 3 structural variants
-6 Judge    5 axes, fresh eyes; blockers/majors fixed and re-judged (<= 2 rounds)
+6 Judge    5 axes, fresh eyes; visual slop + copy gate + UX laws; fixes and re-judge (<= 2 rounds)
 7 Present  open the gallery, summarise, you choose per point
 8 Record   decisions.md: chosen + rejected + why, including rerolled seeds
 9 Handoff  tokens.css + handoff.md + chosen/ + styleguide.html
@@ -128,11 +135,13 @@ of 22 — never an improvised direction; a bad fit is rerolled, not rewritten.
 
 Hard caps: ≤ 4 decision points per session; 3 variants per point (2 allowed via
 `--variants 2`); ≤ 3 screens per variant; ≤ 6 research sources; ≤ 2 judge
-rounds; **≥ 4 slop hits fails the gate**.
+rounds; **≥ 4 visual slop hits fails the gate**, and **any unresolved C01-C04
+copy finding fails it too**.
 
 The normative detail lives in [`SKILL.md`](SKILL.md) and `references/`
 (`directions.md`, `decision-points.md`, `seed-algorithm.md`, `judge-rubric.md`,
-`research-protocol.md`, `slop-fingerprints.md`, `handoff-format.md`). For how
+`research-protocol.md`, `slop-fingerprints.md`, `copy-contract.md`,
+`ux-laws.md`, `handoff-format.md`). For how
 the project itself evolves: [`CHANGELOG.md`](CHANGELOG.md) records **what changed
 between versions**, and [`docs/roadmap.md`](docs/roadmap.md) records **what is
 still open** — the corrections fixed now, the open gaps by severity and the

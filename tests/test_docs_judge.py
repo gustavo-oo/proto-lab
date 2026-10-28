@@ -54,6 +54,26 @@ TEMPLATE_PROVENANCE = (
     "NOT judge-verified",
 )
 
+# The copy gate is the zero-tolerance half of slop-scan. The rubric must name
+# the four rules and the split evidence format.
+COPY_GATE_LITERALS = (
+    "references/copy-contract.md",
+    "C01",
+    "C02",
+    "C03",
+    "C04",
+    "zero-tolerance",
+    "visual: N/26; copy: C01..C04",
+)
+
+UX_LAW_LITERALS = (
+    "references/ux-laws.md",
+    "UX-law checks",
+    "U01-U11",
+    "N/A",
+    "major UX-law check",
+)
+
 CODE_BLOCK_RE = re.compile(r"```[a-zA-Z0-9_-]*[ \t]*\r?\n(.*?)```", re.DOTALL)
 
 
@@ -131,6 +151,30 @@ class JudgeRubricDocTest(unittest.TestCase):
             [],
             "report template is missing provenance: %s" % ", ".join(missing),
         )
+
+    def test_copy_gate_is_documented(self):
+        missing = [item for item in COPY_GATE_LITERALS if item not in self.text]
+        self.assertEqual(
+            missing,
+            [],
+            "judge rubric is missing copy-gate literals: %s" % ", ".join(missing),
+        )
+
+    def test_report_template_carries_the_copy_evidence(self):
+        block = self._report_template_block()
+        self.assertIn("copy: C01..C04", block)
+
+    def test_ux_law_checks_are_documented(self):
+        missing = [item for item in UX_LAW_LITERALS if item not in self.text]
+        self.assertEqual(
+            missing,
+            [],
+            "judge rubric is missing UX-law literals: %s" % ", ".join(missing),
+        )
+
+    def test_report_template_carries_the_ux_law_evidence(self):
+        block = self._report_template_block()
+        self.assertIn("UX-law ids", block)
 
     def test_loop_stops_and_presents_with_the_open_marker(self):
         # Aligned with SKILL.md step 6: stop looping at the cap, present with

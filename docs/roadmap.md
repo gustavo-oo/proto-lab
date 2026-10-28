@@ -1,8 +1,12 @@
 # Roadmap — what is fixed, what is open, what is not covered
 
-File references are to `SKILL.md` at v0.2.0; line numbers are indicative.
+File references are to `SKILL.md` at v0.4.0; line numbers are indicative.
 
-**Current version: 0.2.0** (`VERSION`, `CHANGELOG.md`). The 0.1.1 corrective
+**Current version: 0.4.0** (`VERSION`, `CHANGELOG.md`). 0.4.0 adds the curated
+Laws of UX checklist (U01-U11) inside the `strangeness` axis, with explicit
+"not a hard rule" caveats; the five-axis contract is unchanged. 0.3.0 added the
+zero-tolerance copy gate (C01-C04) and `scripts/check_copy.py`; the visual
+fingerprint cluster keeps its `>= 4 hits` threshold. The 0.1.1 corrective
 release tightened the skill guidance (domain-filter vocabulary, cap message,
 reroll offer, per-page slop, skill-relative commands), the scaffolder's overwrite
 rule, the judge report provenance, the `README.md` pointer and the
@@ -26,6 +30,18 @@ Each entry names the retest that was actually run for this release.
 | 3 | **Reroll offer made observable in the card message.** Step 2 now requires an explicit actionable line ("reroll is free — say the word"), not just an internal option — the T26 item (a) miss. | `SKILL.md` (step 2) | `tests.test_skill_md :: test_required_literals_are_present` asserts **reroll is free — say the word**; full suite 183 OK |
 | 4 | **README points at this roadmap** (the step-4 requirement) as the sibling document next to `CHANGELOG.md`. | `README.md` | `tests.test_readme :: test_prose_only_references_are_cited_not_checked` asserts **docs/roadmap.md**; 10 tests OK, full suite 183 OK |
 | 5 | **Corrective version 0.1.1** with a `### Fixed` changelog entry; the version test constants follow the shipped version. | `VERSION`, `CHANGELOG.md`, `tests/test_version.py` | `tests.test_version :: test_changelog_follows_keep_a_changelog` asserts **### Fixed** inside the `[0.1.1]` section; 3 tests OK, full suite 183 OK |
+| 6 | **Copy gate.** Zero-tolerance C01-C04 copy contract (item counts, repeated facts, filler copy, separator glyphs) wired into generation and the judge's `slop-scan` axis; `scripts/check_copy.py` covers C01/C04 mechanically and C02/C03 stay judge-only. | `references/copy-contract.md`, `SKILL.md`, `references/judge-rubric.md`, `scripts/check_copy.py` | `tests.test_docs_copy`, `tests.test_check_copy`, `tests.test_skill_md`, `tests.test_docs_judge`; full suite green |
+| 7 | **UX-law checks.** Curated U01-U11 reference for the laws that can be judged on a static screen, wired into generation and the judge's `strangeness` axis; laws are heuristics with explicit caveats, not hard caps. | `references/ux-laws.md`, `SKILL.md`, `references/judge-rubric.md` | `tests.test_docs_ux`, `tests.test_skill_md`, `tests.test_docs_judge`; full suite green |
+
+The copy gate is deliberately split: C01 (item counts) and C04 (separator
+glyphs) are mechanical in `scripts/check_copy.py`; C02 (one fact, one place)
+and C03 (filler copy) stay judge-only because a regex cannot decide whether two
+occurrences have distinct roles or whether a line carries information.
+
+The UX-law checklist is judge-only and scoped: it runs inside `strangeness`,
+uses two to four rules per component, and records `N/A` for inapplicable laws.
+Miller's 7±2, Jakob's Law, Doherty and the context-only laws carry explicit
+caveats.
 
 Behaviour retests for the fixes from the review (not new suite tests):
 

@@ -7,6 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-28
+
+### Added
+
+- UX-law reference (`references/ux-laws.md`): a curated U01-U11 checklist for
+  the laws that can be judged on a static screen. Each rule names its law, links
+  the source, states the check, failure signal, severity and a "not a hard rule"
+  caveat.
+- `tests/test_docs_ux.py`: doc-contract tests for the reference, its caveats,
+  component table, judge checklist and licensing.
+- UX-law literals and report-template coverage in `tests/test_skill_md.py` and
+  `tests/test_docs_judge.py`.
+
+### Changed
+
+- `SKILL.md`, `references/judge-rubric.md` and `README.md` wire the checklist
+  into generation and the `strangeness` axis. The judge cites `U01-U11` and
+  records `N/A` for inapplicable laws; the five-axis contract is unchanged.
+- The bundled example's judge report records a UX-law pass for the list/table,
+  card grid, feed and detail views. U01/U09/U11 are N/A; U02-U08 and U10 pass.
+
+## [0.3.0] - 2026-10-28
+
+### Added
+
+- Copy contract (`references/copy-contract.md`): zero-tolerance C01-C04 rules
+  against item-count labels, repeated facts, filler copy, and separator glyphs
+  in product copy. Copy findings are reported separately from the visual
+  fingerprint cluster.
+- `scripts/check_copy.py`: mechanical C01 and C04 scan, run once per product
+  page; C02 and C03 stay judge-only.
+- Copy fixtures under `tests/fixtures/copy/` and `tests/test_check_copy.py`,
+  covering the clean page, item counts, separator soup and the precision
+  guards (dates, ratios, ranges, units, data fields, session chrome).
+
+### Changed
+
+- `SKILL.md`, `references/judge-rubric.md`, `references/slop-fingerprints.md`
+  and `README.md` wire the copy gate into generation and the `slop-scan` axis;
+  any unresolved C01-C04 finding fails `slop-scan` regardless of the visual
+  hit count.
+- `assets/variant-shell.html` and the example's product pages mark session
+  chrome with `data-session-chrome`, so the checker and judge skip the variant
+  label and title block.
+- The bundled example's product copy replaces separator glyphs with grammar or
+  structure, removes the `10 registros` and `10 pranchas` count labels, and
+  records the copy pass in its judge report.
+
+### Fixed
+
+- The example no longer labels a list with a count (C01) or joins metadata with
+  `·` and `—` (C04).
+
 ## [0.2.0] - 2026-10-28
 
 ### Removed

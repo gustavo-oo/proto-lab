@@ -45,7 +45,7 @@ observation — never a bare adjective.
 | ---- | ---------------- |
 | `brief-fidelity` | Each variant answers its point and nothing contradicts the brief. |
 | `strangeness` | Fresh-eyes walkthrough: what confuses, jumps wrong, or breaks. |
-| `slop-scan` | 26 fingerprints + second-order slop. |
+| `slop-scan` | 26 visual fingerprints + second-order slop + the zero-tolerance copy contract (C01-C04). |
 | `direction-fidelity` | The direction's DNA is followed and its failure modes avoided. |
 | `variant-diversity` | The point contract holds and variants differ structurally, not cosmetically. |
 
@@ -83,14 +83,21 @@ Cite file + element/line + the observed symptom for every item. With a browser
 tool, navigate `file://` and click through; without one, read it from code and
 label the walkthrough as degraded (see **Degraded mode**).
 
+**UX-law checks:** run the relevant `U01-U11` rules from
+`references/ux-laws.md` for the component types on the screen. Cite the rule id,
+the law, the screen region and the observed symptom; record `N/A` for a law that
+does not apply. A violation that blocks the primary task is `major`; a
+polish-level violation is `minor`. These are heuristics, not hard caps.
+
 **FAIL when:** a screen breaks at a common width, the primary affordance is dead
-or misleading, body copy is not readable, or the reading order contradicts what
-the point is supposed to make obvious.
+or misleading, body copy is not readable, the reading order contradicts what
+the point is supposed to make obvious, or a major UX-law check fails.
 
 ### 3. `slop-scan`
 
 *The 26 AI-slop fingerprints of §B of the directions draft, plus second-order
-slop, checked mechanically against the HTML/CSS.*
+slop, plus the copy contract (`references/copy-contract.md`, C01-C04), checked
+against the HTML/CSS and the visible copy.*
 
 **Required evidence:** for each fingerprint, the detection test that was run
 (`grep`/selector) and its result, with a hits count per page. Cite the file and
@@ -99,12 +106,31 @@ direction; only a **page with `>= 4 hits` fails** (`>= 4 hits = reprova`). This
 mirrors `check-slop.py` (layer 3) — the judge consumes its result when present
 and never re-litigates a fingerprint the direction legitimately earns.
 
+**Copy gate.** The copy contract is the other half of this axis and is
+**zero-tolerance**: one unresolved C01-C04 finding fails the axis, whatever the
+visual count. Check every product page (`variants/**`, `chosen/**`; session
+chrome marked `data-session-chrome` is skipped):
+
+- **C01** — no item-count labels (`6 filmes, 4 cinemas`, `10 registros`).
+  Counts that are data or state are exempt;
+- **C02** — one fact per place, with at most one role-scoped repetition;
+- **C03** — no filler copy; apply the delete-test to every headline, subhead,
+  tagline and section intro;
+- **C04** — no separator glyphs (`·`, `—`, `–`, `|`, `•`) joining metadata.
+  Dates, ratios, ranges, hyphenated words and proper names are exempt.
+
+C02 and C03 are judge-only. C01 and C04 have a mechanical checker
+(`scripts/check_copy.py`); a `heuristic` checker finding is still a finding
+unless the judge records why the number is data or the glyph belongs to a value
+or proper name. Report the two halves as `visual: N/26; copy: C01..C04`.
+
 The judge owns the *diffuse* half of layer 4: second-order slop that rule-based
 scans miss — cream + Playfair + gold, fake distress, glow + purple,
 chrome-on-everything, and "luxury dark" (two luxury registers averaged).
 
-**FAIL when:** a page reaches `>= 4` fingerprints, or a second-order slop cluster
-drives the page's register (a hit the direction does not justify).
+**FAIL when:** a page reaches `>= 4` visual fingerprints, a second-order slop
+cluster drives the page's register (a hit the direction does not justify), or
+any unresolved C01-C04 copy finding remains.
 
 ### 4. `direction-fidelity`
 
@@ -145,9 +171,9 @@ Every finding carries exactly one severity.
 
 | Severity | Criterion | Loop treatment |
 | -------- | --------- | -------------- |
-| `blocker` | Breaks a global constraint or the point contract: a variant unusable or mis-answering its option, `>= 4` slop hits on a page, a screen breaking at a common width, a brief/direction contradiction that invalidates the direction. | Fix, then re-judge. |
-| `major` | The skeleton is right but the deliverable is materially weakened: a dead affordance, body contrast `< 4.5:1`, one §C5 failure mode present, a second-order slop cluster below threshold, a variant cosmetically close to another. | Fix, then re-judge. |
-| `minor` | Polish and residual doubt: wording, a single ambiguous affordance, a lone fingerprint a human might accept, an assumption that could not be verified. | Report; not fixed in the loop. Goes to `## Open (not fixed)`. |
+| `blocker` | Breaks a global constraint or the point contract: a variant unusable or mis-answering its option, `>= 4` visual slop hits on a page, a screen breaking at a common width, a brief/direction contradiction that invalidates the direction, a repeated load-bearing value, or a screen whose primary message is a slogan. | Fix, then re-judge. |
+| `major` | The skeleton is right but the deliverable is materially weakened: a dead affordance, body contrast `< 4.5:1`, one §C5 failure mode present, a second-order slop cluster below threshold, a variant cosmetically close to another, an unresolved C01-C04 copy finding, or a UX-law violation that blocks the primary task. | Fix, then re-judge. |
+| `minor` | Polish and residual doubt: wording, a single ambiguous affordance, a lone fingerprint a human might accept, an assumption that could not be verified, or a polish-level UX-law violation. | Report; not fixed in the loop. Goes to `## Open (not fixed)`. |
 
 A finding is `{"severity", "target", "evidence", "why", "fix"}` — see the report
 template. `evidence` cites the artifact; `why` states the impact; `fix` states
@@ -201,8 +227,8 @@ placeholders, delete nothing structural — the table header and the
 | axis | verdict | evidence |
 | ---- | ------- | -------- |
 | brief-fidelity | PASS | <file + region; which point/constraint it answers> |
-| strangeness | PASS | <walkthrough symptom + file/element + width> |
-| slop-scan | FAIL | <hits N/26; file; per-hit note> |
+| strangeness | PASS | <walkthrough symptom + file/element + width; UX-law ids> |
+| slop-scan | FAIL | <visual: N/26; copy: C01..C04; file; per-hit note> |
 | direction-fidelity | PASS | <DNA claim -> file; §C5 failure mode avoided> |
 | variant-diversity | PASS | <option realised per variant; structural diff on the axis> |
 

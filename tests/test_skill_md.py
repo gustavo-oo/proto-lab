@@ -49,6 +49,23 @@ REQUIRED_LITERALS = (
     "≤ 6",
 )
 
+COPY_CONTRACT_LITERALS = (
+    "references/copy-contract.md",
+    "scripts/check_copy.py",
+    "C01",
+    "C02",
+    "C03",
+    "C04",
+    "zero-tolerance",
+)
+
+UX_LAW_LITERALS = (
+    "references/ux-laws.md",
+    "UX-law checks (judge aid)",
+    "U01-U11",
+    "record `N/A` where a law does not apply",
+)
+
 # The v0.1.1 corrective guards (T27). Each literal must be present verbatim:
 # on the pre-fix SKILL.md every one of these assertions fails, so the retest
 # pins the fix rather than the old wording around it.
@@ -108,6 +125,7 @@ class SkillMdTest(unittest.TestCase):
         )
         self.text = SKILL_PATH.read_text(encoding="utf-8")
         self.lines = self.text.splitlines()
+        self.normalized = re.sub(r"\s+", " ", self.text)
 
     def test_document_exists(self):
         self.assertTrue(SKILL_PATH.is_file(), "missing %s" % SKILL_PATH)
@@ -153,7 +171,7 @@ class SkillMdTest(unittest.TestCase):
         )
 
     def test_required_literals_are_present(self):
-        required = REQUIRED_LITERALS + T27_GUARD_LITERALS
+        required = REQUIRED_LITERALS + T27_GUARD_LITERALS + COPY_CONTRACT_LITERALS
         missing = [lit for lit in required if lit not in self.text]
         self.assertEqual(
             missing,
@@ -226,6 +244,24 @@ class SkillMdTest(unittest.TestCase):
         self.assertIn("once per generated `.html`", self.text)
         self.assertIn("sums", self.text)
         self.assertIn("per-page verdict", self.text)
+
+    def test_copy_gate_is_documented(self):
+        # The copy gate is zero-tolerance and separate from the visual cluster.
+        self.assertIn("Copy contract (zero tolerance)", self.text)
+        self.assertIn("once per product page", self.text)
+        self.assertIn(
+            "any unresolved C01-C04 finding fails `slop-scan`", self.normalized
+        )
+        self.assertIn("`data-session-chrome`", self.text)
+
+    def test_ux_law_checks_are_documented(self):
+        # The UX-law checklist is a judge aid inside strangeness, not a new axis.
+        self.assertIn("UX-law checks (judge aid)", self.text)
+        self.assertIn("references/ux-laws.md", self.text)
+        self.assertIn(
+            "`strangeness` axis runs the relevant `U01-U11` checks", self.normalized
+        )
+        self.assertIn("record `N/A` where a law does not apply", self.normalized)
 
     def test_commands_are_skill_relative_and_target_the_parent(self):
         # The executor's cwd is the target project after installation; script

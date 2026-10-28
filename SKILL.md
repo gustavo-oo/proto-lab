@@ -123,12 +123,18 @@ the judge loop.
    *Observable:* either `research.md` exists non-empty, or the run recorded the
    `--skip-research` fallback; either way generation advances.
 5. **Generate** — One subagent **per decision point**, in parallel, each with the
-   direction card, the point contract, the brief, `research.md` and the guardrails;
-   each writes 3 structural variants (2–3 linked screens). You assemble the gallery
-   and the per-point comparison canvas.
+   direction card, the point contract, the brief, `research.md`, the copy contract
+   (`references/copy-contract.md`), the UX-law checklist (`references/ux-laws.md`)
+   and the guardrails; each writes 3 structural variants (2–3 linked screens). You
+   assemble the gallery and the per-point comparison canvas.
 6. **Judge** — A fresh-eyes judge subagent runs the 5 axes code-first (plus
    screenshots if a browser tool exists), writes findings with severity to
-   `judge-report.md`. Blockers/majors → fix → re-judge, **≤ 2 rounds**. Nothing is
+   `judge-report.md`. The `slop-scan` axis has two halves: the visual fingerprints
+   (`≥ 4` hits fail) and the zero-tolerance copy gate
+   (`references/copy-contract.md`); run `check_copy.py` once per product page.
+   The `strangeness` axis runs the relevant `U01-U11` checks from
+   `references/ux-laws.md` for the screen's component types; record `N/A` where a
+   law does not apply. Blockers/majors → fix → re-judge, **≤ 2 rounds**. Nothing is
    presented until the report is PASS or the failures are stated openly.
    **Inline judging** (no subagent available) is allowed only as an explicit, declared
    degradation: the report header must state `fresh-eyes independence: lost (inline)` —
@@ -160,6 +166,7 @@ the judge loop.
 | Research sources | ≤ 6 |
 | Judge rounds | ≤ 2 rounds |
 | Slop hits | ≥ 4 fails the gate |
+| Copy-contract findings | any unresolved C01-C04 fails `slop-scan` |
 
 A request beyond a cap is capped, not obeyed: apply the cap and state it in one
 line (e.g. `6 points requested → 4 (cap)`). Cutting scope that way is allowed;
@@ -171,6 +178,42 @@ Each invocation decides that page and exits 1 iff **that page** finds **≥ 4**
 hits. A call with several paths **sums** their hits into one count — that is not
 a per-page verdict and must never be used as one. Details in
 `references/slop-fingerprints.md`.
+
+Copy is scanned mechanically **once per product page**:
+`python3 "$SKILL_DIR/scripts/check_copy.py" <one-page.html>`. It checks C01 and
+C04; C02 and C03 are judge-only. A page fails on **any** copy finding: the copy
+gate is zero-tolerance, unlike the visual `≥ 4` cluster. Details in
+`references/copy-contract.md`.
+
+### Copy contract (zero tolerance)
+
+Read `references/copy-contract.md` before generating and before judging. It
+applies to every visible text node in `variants/**` and `chosen/**`; session
+chrome is marked `data-session-chrome` and skipped. The four rules:
+
+- **C01. No item-count labels.** A list is its own count. Drop `6 filmes, 4
+  cinemas` and `10 registros`; keep counts that are data or state (`3 de 5`,
+  `extração 1 de 2`, `nota 4/5`).
+- **C02. One fact, one place.** At most one repetition per screen, and only for
+  a distinct summary/detail role. An eyebrow must not restate its heading.
+- **C03. No filler copy.** Every line must add information. If deleting it
+  loses nothing, delete it. A direction's voice never licenses an empty slogan.
+- **C04. No separator characters.** Do not join metadata with `·`, `—`, `–`,
+  `|` or `•`. Use a comma, colon, conjunction or separate elements. Dates,
+  ratios, ranges, hyphenated words and proper names are values, not separators.
+
+A copy finding is not counted in the visual `≥ 4` cluster: any unresolved
+C01-C04 finding fails `slop-scan`, whatever the visual count.
+
+### UX-law checks (judge aid)
+
+`references/ux-laws.md` curates the Laws of UX that can be judged on a static
+screen as U01-U11. The generator applies only the two to four rules relevant to
+the component type; the judge runs the same rules inside `strangeness` and cites
+the rule id, law and screen region, or records `N/A`. These are heuristics, not
+hard caps: Miller's 7±2 is not a limit, Jakob's Law does not forbid structural
+divergence, and a static prototype can show intended feedback but cannot measure
+the Doherty threshold.
 
 ### Canvas contract (R16)
 
@@ -203,10 +246,12 @@ file://-safe (`assets/gallery.html` is display-only, zero cross-frame scripting;
 Related interfaces (all under `$SKILL_DIR`): `scripts/roll.py`/`scripts/roll.mjs`
 (`--seed --domain --wild --out --catalog`), `scripts/scaffold.py`
 (`--target --slug --card --points`), `scripts/check_slop.py`
-(`<one-page.html> [--allow-font NAME]`), `scripts/serve.py` (`--port 8765 --dir PATH`). Seed
+(`<one-page.html> [--allow-font NAME]`), `scripts/check_copy.py`
+(`<one-page.html>`), `scripts/serve.py` (`--port 8765 --dir PATH`). Seed
 algorithm spec: `references/seed-algorithm.md`. Point taxonomy:
 `references/decision-points.md`. Judge rubric: `references/judge-rubric.md`.
-Research protocol: `references/research-protocol.md`. Handoff formats:
+UX-law checks: `references/ux-laws.md`. Research protocol:
+`references/research-protocol.md`. Handoff formats:
 `references/handoff-format.md`.
 
 ## Rationalizations
@@ -261,6 +306,22 @@ Stop and correct course if you catch yourself thinking or saying:
   say fresh-eyes independence was lost.
 - "The research said ✓, so I'll wait for the file." — Check the artifact; if it is missing,
   `--skip-research` and continue.
+- "The count gives useful context." — If the list already shows the items, the
+  count restates its length; drop it (C01).
+- "The label repeats the heading for clarity." — Repetition is noise; keep the
+  fact in one place (C02).
+- "The slogan gives the page personality." — Personality without information is
+  filler; rewrite it as a concrete claim (C03).
+- "The separator makes the metadata look designed." — Separator glyphs are
+  decoration; use grammar or structure (C04).
+- "The law says 7±2, so I'll cap the UI at seven items." — Chunk by meaning,
+  not a magic number (U02).
+- "The law justifies social proof, scarcity or anchoring." — Those are
+  dark-pattern risks, not checks; the copy contract still applies (U03/C03).
+- "Jakob's Law means every variant must look conventional." — Control-level
+  familiarity, not structural sameness; divergence is the point (U05).
+- "Aesthetic polish proves usability." — Polish can mask breakage; the judge
+  tests the artifact (Aesthetic-Usability caveat).
 
 ## Degradation
 
