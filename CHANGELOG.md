@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-28
+
+### Added
+
+- Fit mode (`--fit <source>`): capture an existing product's visual system as
+  the direction instead of drawing one of the 22. `references/fit-mode.md`
+  defines the style-snapshot schema, the `observed`/`declared`/`inferred`
+  evidence levels, the extraction protocol, the FIT card, the
+  generation/judge/handoff rules, caps and degradation.
+- `scripts/snapshot.py`: deterministic capture from CSS/token sources or
+  authored `--extra`, schema validation, sha256 hashing and `--check`,
+  inherited-slop baseline via `check_slop.py`, and `--card` FIT-card emission.
+- `style-snapshot.json` in the session tree (fit mode only), with `tokens`,
+  `type`, `components`, `layout`, `voice`, `constraints`, `extensions`,
+  `inherited_slop`, `gaps` and a stable hash.
+
+### Changed
+
+- `SKILL.md`: two modes (explore default, fit opt-in), the `--fit` flag, the
+  step-2 capture branch, the step-3 snapshot gate, per-variant snapshot
+  inheritance, snapshot-fidelity judging, the fit handoff and a mode-scoped
+  inviolable rule 1.
+- `README.md`: fit-mode entry point, cost lever and requirements.
+- `references/judge-rubric.md` and `references/handoff-format.md`: fit-mode
+  evidence, inherited-vs-new slop, and `origin: reused | new | extension`.
+- `docs/roadmap.md`: fit-mode extraction gaps (Tailwind/styled components,
+  scripted URL capture, multi-theme snapshots, automatic component extraction).
+
 ## [0.4.0] - 2026-10-28
 
 ### Added

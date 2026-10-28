@@ -1,0 +1,34 @@
+{
+  "evidence": "observed",
+  "components": [
+    {
+      "name": "Button",
+      "selector": ".btn",
+      "states": ["default", "hover", "focus", "disabled"],
+      "facts": {
+        "height": "40px",
+        "padding": "0 16px",
+        "radius": "6px",
+        "font": "500 14px/1 Söhne",
+        "background": "#1d1b17",
+        "color": "#f7f5f0"
+      },
+      "source": "https://app.example.test/.btn",
+      "evidence": "observed"
+    }
+  ],
+  "layout": {
+    "shell": "fixed sidebar plus scrolling content",
+    "max_width": "1200px",
+    "gutters": "clamp(16px, 3vw, 32px)",
+    "nav_model": "fixed sidebar",
+    "density": "comfortable",
+    "breakpoints": ["768px", "1024px"]
+  },
+  "voice": {
+    "samples": ["Save changes", "No invoices yet. Create your first one."],
+    "terminology": ["invoice", "client", "draft"],
+    "casing": "sentence case"
+  },
+  "constraints": ["Flat surfaces only; no gradients."]
+}

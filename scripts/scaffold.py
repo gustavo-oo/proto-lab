@@ -10,6 +10,7 @@ directory — the pre-generation subset of the spec §4 tree:
       direction.json             # the card, canonical JSON (source of truth)
       brief.md                   # captured brief placeholder (header only when absent)
       points.json                # the decision points, verbatim
+      style-snapshot.json        # fit mode only: captured visual system
       points/<id>-<slug>.html    # comparison canvas (assets/canvas.html)
       variants/<id>-<key>/       # one directory per option
         index.html               # variant shell (assets/variant-shell.html)
@@ -39,7 +40,7 @@ Python stdlib only, Python >= 3.8.
 
 Usage:
     python3 scripts/scaffold.py --target DIR --slug S --card card.json
-                                --points points.json
+                                --points points.json [--snapshot snapshot.json]
 """
 
 from __future__ import annotations
@@ -78,6 +79,14 @@ def _copy_if_absent(source, destination):
     """Copy ``source`` to ``destination`` unless the destination exists."""
     if not destination.exists():
         shutil.copyfile(source, destination)
+
+
+def _snapshot_text(snapshot):
+    """Canonical snapshot bytes: sorted keys, compact, UTF-8 preserved."""
+    return (
+        json.dumps(snapshot, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+        + "\n"
+    )
 
 
 def _option_summary(options):
@@ -140,13 +149,30 @@ def variant_name(point, option):
     return "%s-%s" % (point["id"], option["key"])
 
 
-def build(target_dir, slug, card, points):
+def build(target_dir, slug, card, points, snapshot=None):
     """Create ``<target_dir>/<slug>-<seed>/`` and return that directory.
 
     ``card`` is the CARD SCHEMA dict rolled from the seed; ``points`` is the
-    parsed ``points.json``. Every write is **if-absent**: rerunning is a no-op at
-    the byte level and never clobbers a captured brief or a started artifact.
+    parsed ``points.json``. ``snapshot`` is the fit-mode ``style-snapshot.json``
+    dict and is required exactly when ``card["mode"] == "fit"``. Every write is
+    **if-absent**: rerunning is a no-op at the byte level and never clobbers a
+    captured brief or a started artifact.
     """
+    is_fit = card.get("mode") == "fit"
+    if is_fit:
+        if snapshot is None:
+            raise ValueError("fit cards require a --snapshot")
+        recorded = card.get("snapshot") or {}
+        if recorded.get("path") != "style-snapshot.json":
+            raise ValueError("fit card snapshot.path must be style-snapshot.json")
+        if recorded.get("hash") != snapshot.get("hash"):
+            raise ValueError(
+                "snapshot hash %r does not match the fit card %r"
+                % (snapshot.get("hash"), recorded.get("hash"))
+            )
+    elif snapshot is not None:
+        raise ValueError("--snapshot is only valid for fit cards")
+
     target = Path(target_dir)
     session = target / ("%s-%s" % (slug, card["seed"]))
     points_dir = session / "points"
@@ -158,6 +184,8 @@ def build(target_dir, slug, card, points):
     _write_if_absent(session / "direction.json", roll.dumps(card) + "\n")
     _write_if_absent(session / "points.json", roll.dumps(points) + "\n")
     _write_if_absent(session / "brief.md", BRIEF_HEADER)
+    if snapshot is not None:
+        _write_if_absent(session / "style-snapshot.json", _snapshot_text(snapshot))
 
     for point in points.get("points", ()):
         _copy_if_absent(CANVAS_TEMPLATE, points_dir / canvas_name(point, slug))
@@ -177,11 +205,18 @@ def main(argv=None):
     parser.add_argument("--slug", required=True, help="session slug")
     parser.add_argument("--card", required=True, help="path to the direction card JSON")
     parser.add_argument("--points", required=True, help="path to points.json")
+    parser.add_argument("--snapshot", help="style-snapshot.json for fit cards")
     args = parser.parse_args(argv)
 
     card = json.loads(Path(args.card).read_text(encoding="utf-8"))
     points = json.loads(Path(args.points).read_text(encoding="utf-8"))
-    session = build(Path(args.target), args.slug, card, points)
+    snapshot = None
+    if args.snapshot:
+        snapshot = json.loads(Path(args.snapshot).read_text(encoding="utf-8"))
+    try:
+        session = build(Path(args.target), args.slug, card, points, snapshot)
+    except ValueError as error:
+        parser.error(str(error))
     print(session)
     return 0
 

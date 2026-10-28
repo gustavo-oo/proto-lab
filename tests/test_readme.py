@@ -127,6 +127,14 @@ class ReadmeDocTest(unittest.TestCase):
             "README must state that the skill does not follow the target's stack",
         )
 
+    def test_fit_mode_is_documented(self):
+        for literal in ("--fit", "style-snapshot.json", "fit-mode.md"):
+            self.assertIn(
+                literal,
+                self.text,
+                "README must document fit mode with %s" % literal,
+            )
+
     def test_cites_the_homogenization_papers(self):
         with open(LANDSCAPE, "r", encoding="utf-8") as fh:
             landscape = fh.read()

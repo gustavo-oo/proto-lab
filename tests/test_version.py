@@ -14,8 +14,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
 
-EXPECTED_VERSION = "0.4.0"
-EXPECTED_CHANGELOG_HEADING = "## [0.4.0] - 2026-10-28"
+EXPECTED_VERSION = "0.5.0"
+EXPECTED_CHANGELOG_HEADING = "## [0.5.0] - 2026-10-28"
 
 
 class VersionTest(unittest.TestCase):
@@ -48,8 +48,8 @@ class VersionTest(unittest.TestCase):
         self.assertIn("### Added", changelog_text)
         self.assertIn("### Changed", changelog_text)
 
-        # 0.4.0 adds the UX-law checklist, so the current release carries its
-        # own ### Added and ### Changed sections rather than inheriting older
+        # 0.5.0 adds fit mode, so the current release carries its own
+        # ### Added and ### Changed sections rather than inheriting older
         # headings.
         current = changelog_text.split(EXPECTED_CHANGELOG_HEADING, 1)[1]
         current = current.split("\n## ", 1)[0]

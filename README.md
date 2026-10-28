@@ -4,7 +4,8 @@
 the name will change before publication. Nothing here is stable API.
 
 Design options before implementation. `proto-lab` turns a rough product idea
-into a **direction card** drawn from a closed catalogue of 22 directions, then
+into a **direction card** drawn from a closed catalogue of 22 directions — or,
+with `--fit`, from the visual system an existing product already uses — then
 into comparable, judgeable HTML prototypes you can hand off to the
 implementation session.
 
@@ -18,6 +19,9 @@ target project:
 - a **direction card** (`direction.json`): the seed, the direction, its DNA and
   knobs — the source of truth, with no timestamp, so the same seed yields the
   same card;
+- a **style snapshot** (`style-snapshot.json`, fit mode): the existing system's
+  tokens, component recipes, layout shell, voice samples and inherited slop,
+  with provenance on every value;
 - **decision points** with named structural options (`points.json`), confirmed
   with you before anything is generated;
 - **cited competitor research** (`research.md`) for the product's domain;
@@ -26,6 +30,12 @@ target project:
 - a **fresh-eyes judge report** (`judge-report.md`) across five axes, with
   fixes applied before you ever see the output;
 - a **handoff**: `tokens.css`, `handoff.md`, `chosen/` and `styleguide.html`.
+
+**Fit mode** (`--fit <source>`) is the exception to the greenfield rule: it
+captures the existing visual system into `style-snapshot.json`, records its
+hash in the card (`mode: "fit"`, `direction_id: "FIT"`), and makes every variant
+inherit it. The 22-catalogue is bypassed; structural divergence at decision
+points still applies, so fit mode is not a repaint machine.
 
 The judge also runs a zero-tolerance **copy gate**
 (`references/copy-contract.md`): no item-count labels, no repeated facts, no
@@ -49,9 +59,12 @@ from the catalogue, then diverge **structurally** at each decision point.
 
 - Not an app and not production code. Variants are lightly navigable static
   HTML: links work, there is no business logic, data is placeholder.
-- It **does not follow the target's stack** — the skill never reads the target
-  project's code or UI for design, only its specs/docs for requirements. "I
-  matched the existing theme" is a violation of the skill, not a feature.
+- In **explore mode** it **does not follow the target's stack** — the skill
+  never reads the target project's code or UI for design, only its specs/docs
+  for requirements. "I matched the existing theme" is a violation, not a
+  feature. **Fit mode is the opt-in exception**: it reads only visual sources
+  (tokens, theme, global CSS, component primitives, computed styles) and never
+  business logic.
 - It is **zero-dependency**: static HTML/CSS that opens over `file://`, no
   build, no bundler, no mandatory server (a small `scripts/serve.py` is
   optional), and no `pip`/`npm` install step. Fonts come from a CDN **with a
@@ -96,6 +109,7 @@ cheap model the harness is configured with. **Defaults:** ≤ 4 decision points,
 | Lever | Effect |
 |---|---|
 | Reroll the seed (pipeline step 2) | A new direction card costs ~nothing; nothing has been generated yet. |
+| `--fit` | Capture the existing system once (≤ 8 files); no visual reroll — correct the snapshot and re-check. |
 | Cache the research | Reuse `research.md` for the same domain instead of re-fetching. |
 | `--variants 2` | Two structural variants per point instead of three (floor; capped at 3). |
 | `--points <n>` | Fewer decision points; the floor is 1 point (= 3 screens + canvas + gallery). |
@@ -119,6 +133,7 @@ Figures come from that run; nothing here is estimated.
 0 Setup    detect python3 / node / browser tool / subagents -> rich or degraded path
 1 Brief    capture the brief, pick a seed
 2 Roll     seed -> direction card from the catalogue of 22 (reroll here, free)
+           fit mode: capture the existing system -> style-snapshot.json + FIT card
 3 Points   derive decision points + named structural options   <<< the single gate
 4 Research 3-6 cited competitors/analogues of the domain
 5 Generate one generation per point, in parallel -> 3 structural variants
@@ -129,9 +144,13 @@ Figures come from that run; nothing here is estimated.
 ```
 
 Step 3 is the **only** gate that interrupts the flow: points and their options
-are confirmed before any generation is spent. Everything else runs through,
-including the judge loop. The seed selects one direction from a closed catalogue
-of 22 — never an improvised direction; a bad fit is rerolled, not rewritten.
+are confirmed before any generation is spent. In fit mode it also confirms the
+style snapshot, so a gap becomes a value, an approved extension or an accepted
+out-of-scope note. Everything else runs through,
+including the judge loop. In explore mode the seed selects one direction from a
+closed catalogue of 22 — never an improvised direction; a bad fit is rerolled,
+not rewritten. Fit mode instead uses the captured snapshot and has no visual
+reroll.
 
 Hard caps: ≤ 4 decision points per session; 3 variants per point (2 allowed via
 `--variants 2`); ≤ 3 screens per variant; ≤ 6 research sources; ≤ 2 judge
@@ -139,9 +158,9 @@ rounds; **≥ 4 visual slop hits fails the gate**, and **any unresolved C01-C04
 copy finding fails it too**.
 
 The normative detail lives in [`SKILL.md`](SKILL.md) and `references/`
-(`directions.md`, `decision-points.md`, `seed-algorithm.md`, `judge-rubric.md`,
-`research-protocol.md`, `slop-fingerprints.md`, `copy-contract.md`,
-`ux-laws.md`, `handoff-format.md`). For how
+(`directions.md`, `decision-points.md`, `seed-algorithm.md`, `fit-mode.md`,
+`judge-rubric.md`, `research-protocol.md`, `slop-fingerprints.md`,
+`copy-contract.md`, `ux-laws.md`, `handoff-format.md`). For how
 the project itself evolves: [`CHANGELOG.md`](CHANGELOG.md) records **what changed
 between versions**, and [`docs/roadmap.md`](docs/roadmap.md) records **what is
 still open** — the corrections fixed now, the open gaps by severity and the
@@ -150,8 +169,8 @@ failure modes not yet covered.
 ## Requirements
 
 - **Python ≥ 3.8, standard library only** for the optional scripts
-  (`scripts/roll.py`, `scripts/scaffold.py`, `scripts/check_slop.py`,
-  `scripts/serve.py`). No `pip`.
+  (`scripts/roll.py`, `scripts/snapshot.py`, `scripts/scaffold.py`,
+  `scripts/check_slop.py`, `scripts/serve.py`). No `pip`.
 - **Node ≥ 18, built-in modules only** for the optional mirror
   (`scripts/roll.mjs`); not required.
 - **A browser** to view the artifacts; a **browser tool** (agent-browser or

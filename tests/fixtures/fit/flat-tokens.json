@@ -1,0 +1,13 @@
+{
+  "color": {
+    "bg": "#f7f5f0",
+    "ink": "#1d1b17",
+    "accent": "#0f766e"
+  },
+  "font": {
+    "body": "\"Söhne\", system-ui, sans-serif"
+  },
+  "radius": {
+    "md": "6px"
+  }
+}

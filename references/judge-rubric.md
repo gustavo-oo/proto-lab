@@ -10,6 +10,10 @@ scores five axes, states a binary `PASS`/`FAIL` per axis with cited evidence, an
 emits a list of findings, each with a `blocker`/`major`/`minor` severity. It does
 not rewrite the prototype: it reports, the loop fixes, the judge re-judges.
 
+In **fit mode** the same five axes run, but axis 4 verifies the captured
+`style-snapshot.json` instead of a drawn direction; the axis name and the report
+template stay the same.
+
 Caps that bind the judge: `<= 2 rodadas de juiz` (see **Loop**) and slop
 `>= 4 hits` on a page (see **slop-scan**). The judge never reviews its own
 round; a fresh subagent is spawned for the re-judge.
@@ -46,7 +50,7 @@ observation — never a bare adjective.
 | `brief-fidelity` | Each variant answers its point and nothing contradicts the brief. |
 | `strangeness` | Fresh-eyes walkthrough: what confuses, jumps wrong, or breaks. |
 | `slop-scan` | 26 visual fingerprints + second-order slop + the zero-tolerance copy contract (C01-C04). |
-| `direction-fidelity` | The direction's DNA is followed and its failure modes avoided. |
+| `direction-fidelity` | The direction's DNA is followed and its failure modes avoided. In fit mode: the captured snapshot is followed. |
 | `variant-diversity` | The point contract holds and variants differ structurally, not cosmetically. |
 
 ### 1. `brief-fidelity`
@@ -165,6 +169,33 @@ type scale, radius) do **not** count as diversity.
 options are blended, or the variants are reskins of one option (cosmetic-only
 diff). Per the point contract, this is a **blocker**.
 
+## Fit mode
+
+Fit mode changes the evidence for axis 4, not the axis list. The judge also
+receives `style-snapshot.json`.
+
+- **`direction-fidelity` = snapshot fidelity.** Every colour, family, size,
+  spacing step, radius, shadow, motion value and component state traces to the
+  snapshot or to an `extensions[]` entry with `approved_at_gate: true`. A new
+  unapproved token is a `major`; a screen whose visual register no longer belongs
+  to the captured system is a `blocker`.
+- **`slop-scan` counts new hits only.** Report
+  `visual: N new / M inherited; copy: C01..C04`. Fingerprints recorded in
+  `inherited_slop` are listed but do not count toward the `>= 4` threshold. A hit
+  is inherited only when the same fingerprint id is recorded; a lookalike with
+  different evidence is new. `>= 4` new hits fail, and any unresolved C01-C04
+  finding still fails the axis.
+- **`variant-diversity` is unchanged.** Structural differences on the declared
+  axis; cosmetic differences never count.
+- **Provenance.** The report header carries `- fit mode: fit` and
+  `- snapshot: <hash>` in addition to the existing lines.
+- **Comparison.** With a browser tool and the source URL, the judge may reopen
+  the existing page; without one, it reads the snapshot and the artifacts
+  code-first, and states the missing rendered comparison as an assumption.
+
+Inherited fingerprints are a baseline, not a licence: new slop introduced by the
+fit generation still fails.
+
 ## Severities
 
 Every finding carries exactly one severity.
@@ -223,6 +254,8 @@ placeholders, delete nothing structural — the table header and the
 - mode: full | degraded (code-first, no browser tool)
 - fresh-eyes independence: full | lost (inline)
 - judge status: judged | NOT judge-verified (post-cap fix)
+- fit mode: fit | explore
+- snapshot: <hash> (fit only)
 
 | axis | verdict | evidence |
 | ---- | ------- | -------- |
