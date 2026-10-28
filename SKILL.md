@@ -74,7 +74,13 @@ the judge loop.
 2. **Roll** — `python3 scripts/roll.py --seed <seed> [--domain <domain>] [--out ...] [--catalog ...]`
    (Node mirror: `scripts/roll.mjs`, same flags; API `roll.roll(seed, domain=None, wild=False)`).
    Shows a compact card preview in chat. Rerolling here is free — nothing has been
-   generated yet, so offer it. `--wild` is off by default.
+   generated yet — so the card message must say so as an explicit line the user can act
+   on ("reroll is free — say the word"), not only perform it silently. `--wild` is off by
+   default.
+   `--domain` matches the catalogue's **literal `fails` tags** (case-insensitive
+   substring), so pass tag-shaped text (`--domain "dense tables hotel dashboard"`), not a
+   prose sentence or another language, or nothing is pruned. Read `filters.excluded` back
+   and reroll if the drawn card's own `fails` still condemn it.
 3. **Points** *(the single gate)* — Derive decision points and their named
    structural options into `points.json` (contract: axis + options). Also create the
    session skeleton: `python3 scripts/scaffold.py --target <project> --slug <slug> --card <direction.json> --points <points.json>`.
@@ -136,6 +142,10 @@ the judge loop.
 | Research sources | ≤ 6 |
 | Judge rounds | ≤ 2 rounds |
 | Slop hits | ≥ 4 fails the gate |
+
+A request beyond a cap is capped, not obeyed: apply the cap and state it in one
+line (e.g. `6 points requested → 4 (cap)`). Cutting scope that way is allowed;
+cutting a step is not.
 
 Slop is scanned mechanically:
 `python3 scripts/check_slop.py <paths> [--allow-font NAME]` exits 1 iff it finds

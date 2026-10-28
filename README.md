@@ -134,9 +134,11 @@ The normative detail lives in [`SKILL.md`](SKILL.md) and `references/`
 (`directions.md`, `decision-points.md`, `seed-algorithm.md`, `judge-rubric.md`,
 `research-protocol.md`, `slop-fingerprints.md`, `handoff-format.md`). For how
 the project itself evolves: [`CHANGELOG.md`](CHANGELOG.md) records **what changed
-between versions**, and [`benchmarks/README.md`](benchmarks/README.md) records
+between versions**, [`benchmarks/README.md`](benchmarks/README.md) records
 **how each version performed versus the previous one** (the fixed suite and
-`compare.py`).
+`compare.py`), and [`docs/roadmap.md`](docs/roadmap.md) records **what is still
+open** — the corrections fixed now, the open gaps by severity and the failure
+modes not yet covered.
 
 ## Requirements
 

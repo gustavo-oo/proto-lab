@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-28
+
+Corrective release from the T27 adversarial hunt. No generated artifact changes:
+the pipeline guidance is tighter where a guard could silently do nothing, and
+the README points at the open-gap roadmap.
+
+### Fixed
+
+- Domain filter vocabulary: `--domain` matches only the catalogue's literal
+  `fails` tags, so the skill now requires tag-shaped domain text, reading
+  `filters.excluded` back and rerolling a card whose own `fails` still condemn
+  it (a prose or pt-BR domain silently pruned nothing).
+- Cap overflow: a request beyond ≤ 4 points / ≤ 3 variants is capped and stated
+  in one line instead of being silently expanded.
+- The free reroll must be offered as an explicit line in the card message
+  ("reroll is free — say the word"), not only as an internal option — the T26
+  item (a) compliance miss.
+- `README.md` now points at `docs/roadmap.md` (fixed now / open gaps / not
+  contemplated).
+
 ## [0.1.0] - 2026-10-17
 
 First release of the proto-lab skill: a deterministic pipeline that turns a

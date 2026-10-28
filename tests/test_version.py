@@ -15,8 +15,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
 
-EXPECTED_VERSION = "0.1.0"
-EXPECTED_CHANGELOG_HEADING = "## [0.1.0] - 2026-10-17"
+EXPECTED_VERSION = "0.1.1"
+EXPECTED_CHANGELOG_HEADING = "## [0.1.1] - 2026-10-28"
 
 
 class VersionTest(unittest.TestCase):
